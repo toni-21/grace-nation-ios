@@ -54,25 +54,15 @@ class _DownloadScreenState extends State<DownloadScreen> {
     if (exists) {
       print("exits");
 
-      directory
-          .list(recursive: true, followLinks: false)
-          .listen((FileSystemEntity entity) async {
+      directory.list(recursive: true, followLinks: false).listen((FileSystemEntity entity) async {
         newList.add(entity.path);
         print(entity.path);
         print(entity.statSync().size);
         String t = (entity.path).split("/").last;
         String? d = prefs.getString('duration-$t');
         audioDurationList.add(d ?? "");
-        final image = await VideoThumbnail.thumbnailData(
-            video: entity.path,
-            imageFormat: ImageFormat.WEBP,
-            maxWidth: 180,
-            quality: 50);
-        final newAudioTrack = AudioTrack(
-            title: t,
-            source: entity.path,
-            image: image,
-            date: File(entity.path).statSync().modified);
+        final image = await VideoThumbnail.thumbnailData(video: entity.path, imageFormat: ImageFormat.WEBP, maxWidth: 180, quality: 50);
+        final newAudioTrack = AudioTrack(title: t, source: entity.path, image: image, date: File(entity.path).statSync().modified);
 
         audioList.add(newAudioTrack);
         // Provider.of<AudioProvider>(context, listen: false)
@@ -97,18 +87,20 @@ class _DownloadScreenState extends State<DownloadScreen> {
       final uint8list = await VideoThumbnail.thumbnailData(
         video: list[i],
         imageFormat: ImageFormat.WEBP,
-        maxWidth:
-            180, // specify the width of the thumbnail, let the height auto-scaled to keep the source aspect ratio
+        maxWidth: 180, // specify the width of the thumbnail, let the height auto-scaled to keep the source aspect ratio
         quality: 50,
       );
-      print('thumb created');
-      newThumbList.add(uint8list!);
+     
+      if (uint8list != null) {
+         print('thumb created');
+        newThumbList.add(uint8list);
+      }
+      ;
     }
     uint8Lists = newThumbList;
   }
 
-  Widget videoWidget(String videoPath, Uint8List thumbnail,
-      [bool service = false]) {
+  Widget videoWidget(String videoPath, Uint8List thumbnail, [bool service = false]) {
     final videoFile = File(videoPath);
     String size = (videoFile.statSync().size * 0.000001).truncate().toString();
     String title = videoPath.split("/").last;
@@ -136,8 +128,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
                     alignment: Alignment.center,
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (context) {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
                           return VideoPlayerWidget(videoPath: videoPath);
                         }));
                       },
@@ -180,10 +171,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
                       padding: EdgeInsets.only(left: 6),
                       child: Text(
                         ('${size}MB'),
-                        style: TextStyle(
-                            color: Color.fromRGBO(211, 212, 237, 1),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600),
+                        style: TextStyle(color: Color.fromRGBO(211, 212, 237, 1), fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                     ),
                     // Row(
@@ -227,8 +215,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
                           builder: (BuildContext context) {
                             return ConfirmationWidget(
                                 title: "Delete Video ?",
-                                description:
-                                    "This will delete both the audio and video format. Do you wish to continue?",
+                                description: "This will delete both the audio and video format. Do you wish to continue?",
                                 callback: () {
                                   deleteFile(videoPath);
                                 },
@@ -261,9 +248,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
           overscroll.disallowIndicator();
           return false;
         },
-        child: (videoList.isEmpty ||
-                uint8Lists.isEmpty ||
-                audioDurationList.isEmpty)
+        child: (videoList.isEmpty || uint8Lists.isEmpty || audioDurationList.isEmpty)
             ? Container()
             : ListView.builder(
                 padding: EdgeInsets.only(top: 24),
@@ -285,10 +270,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
         overscroll.disallowIndicator();
         return false;
       },
-      child: (videoList.isEmpty ||
-              uint8Lists.isEmpty ||
-              audioDurationList.isEmpty ||
-              audioList.isEmpty)
+      child: (videoList.isEmpty || uint8Lists.isEmpty || audioDurationList.isEmpty || audioList.isEmpty)
           ? Container()
           : ListView.builder(
               padding: EdgeInsets.only(
@@ -314,19 +296,13 @@ class _DownloadScreenState extends State<DownloadScreen> {
                 Uint8List thumbnail = uint8Lists[index];
                 return InkWell(
                   onTap: () async {
-                    print(
-                        "length is ....${Provider.of<AudioProvider>(context, listen: false).playlist.length}");
-                    await Provider.of<AudioProvider>(context, listen: false)
-                        .selectCurrentIndex(index);
-                    await Provider.of<AudioProvider>(context, listen: false)
-                        .setPlaylist(audioList);
+                    print("length is ....${Provider.of<AudioProvider>(context, listen: false).playlist.length}");
+                    await Provider.of<AudioProvider>(context, listen: false).selectCurrentIndex(index);
+                    await Provider.of<AudioProvider>(context, listen: false).setPlaylist(audioList);
                     track.title = title;
-                    await Provider.of<AudioProvider>(context, listen: false)
-                        .setCurrentTrack(track);
+                    await Provider.of<AudioProvider>(context, listen: false).setCurrentTrack(track);
 
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            AudioPlayerWidget()));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => AudioPlayerWidget()));
                   },
                   child: Container(
                     margin: EdgeInsets.only(bottom: 20),
@@ -348,9 +324,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             // borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                                image: MemoryImage(thumbnail),
-                                fit: BoxFit.fitHeight),
+                            image: DecorationImage(image: MemoryImage(thumbnail), fit: BoxFit.fitHeight),
                           ),
                         ),
                         Expanded(
@@ -365,17 +339,12 @@ class _DownloadScreenState extends State<DownloadScreen> {
                                 Text(
                                   title,
                                   //    overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600),
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                                 ),
                                 Text(
                                   // 'September 14, 2022',
                                   date,
-                                  style: TextStyle(
-                                      color: Color(0xFFACB8C2),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600),
+                                  style: TextStyle(color: Color(0xFFACB8C2), fontSize: 11, fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
@@ -392,8 +361,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
                           ),
                           alignment: Alignment.center,
                           child: IconButton(
-                            padding: EdgeInsets.zero,
-
+                              padding: EdgeInsets.zero,
                               icon: Icon(Icons.close),
                               color: white,
                               iconSize: 20,
@@ -403,8 +371,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
                                     builder: (BuildContext context) {
                                       return ConfirmationWidget(
                                           title: "Delete Audio ?",
-                                          description:
-                                              "This will delete both the audio and video format. Do you wish to continue?",
+                                          description: "This will delete both the audio and video format. Do you wish to continue?",
                                           callback: () {
                                             deleteFile(track.source);
                                           },
@@ -463,8 +430,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
                       indicatorSize: TabBarIndicatorSize.label,
                       indicatorWeight: 4,
                       labelColor: Theme.of(context).iconTheme.color,
-                      unselectedLabelColor:
-                          Theme.of(context).iconTheme.color!.withOpacity(0.25),
+                      unselectedLabelColor: Theme.of(context).iconTheme.color!.withOpacity(0.25),
                       tabs: [
                         Tab(
                           child: Text(
