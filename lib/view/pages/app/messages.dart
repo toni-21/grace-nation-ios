@@ -116,7 +116,7 @@ class _MessagesScreenState extends State<MessagesScreen>
   }
 
   _initChannel() async {
-    final newVideoList = await ytApi.fetchVideos();
+    final newVideoList = await ytApi.fetchVideos(freshList: true);
     if (mounted) {
       setState(() {
         videoList = newVideoList;
@@ -132,7 +132,7 @@ class _MessagesScreenState extends State<MessagesScreen>
 
     _bindBackgroundIsolate();
 
-    FlutterDownloader.registerCallback(downloadCallback);
+    FlutterDownloader.registerCallback(downloadCallback, step: 1);
 
     if (Provider.of<AppProvider>(context, listen: false).downloading) {
       setState(() {
@@ -192,6 +192,7 @@ class _MessagesScreenState extends State<MessagesScreen>
               videoUrl: url,
               videoName: name,
               duration: video.duration!,
+              videoThumbnail: video.thumbnailUrl,
               context: context,
             );
             //resources.downloadVideo(, name, video.duration, context);

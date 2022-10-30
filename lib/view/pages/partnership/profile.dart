@@ -30,6 +30,21 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   bool _enableNotifications = true;
   final authApi = AuthApi();
+
+  static String getIconcolor(String text) {
+    switch (text) {
+      case 'Kingdom Broadcaster':
+        return 'assets/images/profile-iron-crown.svg';
+      case 'Kingdom Amplifier':
+        return 'assets/images/profile-gold-crown.svg';
+      case 'Kingdom Vessel':
+        return 'assets/images/profile-bronze-crown.svg';
+      case 'Kingdom Advancer':
+      default:
+        return 'assets/images/profile-silver-crown.svg';
+    }
+  }
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -46,6 +61,7 @@ class _ProfileState extends State<Profile> {
     bool present = Provider.of<AuthProvider>(context, listen: false)
         .supportTypes
         .contains(key);
+    String colorPath = getIconcolor(key);
     return Row(
       children: [
         Container(
@@ -58,13 +74,15 @@ class _ProfileState extends State<Profile> {
           alignment: Alignment.center,
           child: Wrap(
             direction: Axis.vertical,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               SvgPicture.asset(
-                'assets/images/partner-crown-gold.svg',
-                color: !present ? darkGray.withOpacity(0.5) : null,
+                colorPath,
+                color: !present ? darkGray.withOpacity(0.125) : null,
               ),
               Text(
-                '+500',
+                !present ? '0' : '+500',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Theme.of(context).primaryColorDark,
                   fontWeight: FontWeight.w400,
@@ -372,11 +390,12 @@ class _ProfileState extends State<Profile> {
                         width: 30,
                         child: CupertinoSwitch(
                             activeColor: babyBlue,
-                            value: _enableNotifications,
+                            value:
+                                Provider.of<AppProvider>(context, listen: true)
+                                    .enableNotifications,
                             onChanged: (value) {
-                              setState(() {
-                                _enableNotifications = value;
-                              });
+                              Provider.of<AppProvider>(context, listen: false)
+                                  .setNotifications(value);
                             }),
                       ),
                     ),

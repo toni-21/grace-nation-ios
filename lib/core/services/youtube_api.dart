@@ -11,9 +11,9 @@ class YoutubeApi {
   static final YoutubeApi instance = YoutubeApi._instantiate();
 
   final String _baseUrl = 'www.googleapis.com';
-  String _nextPageToken = '';
+  String? _nextPageToken;
 
-  Future<List<Video>> fetchVideos() async {
+  Future<List<Video>> fetchVideos({bool freshList = false}) async {
     Channel channel = Channel(
       id: AppConfig.channelId,
       title: "Chris Okafor",
@@ -22,13 +22,25 @@ class YoutubeApi {
       uploadPlaylistId: AppConfig.okaforPlaylistlId,
     );
 
-    Map<String, String> parameters = {
-      'part': 'snippet',
-      'playlistId': AppConfig.okaforPlaylistlId,
-      'maxResults': '8',
-      'pageToken': _nextPageToken,
-      'key': AppConfig.youtubeAPIKEY,
-    };
+    // Refresh List if applicable
+    if (freshList == true) {
+      _nextPageToken = null;
+    }
+
+    Map<String, String> parameters = _nextPageToken == null
+        ? {
+            'part': 'snippet',
+            'playlistId': AppConfig.okaforPlaylistlId,
+            'maxResults': '8',
+            'key': AppConfig.youtubeAPIKEY,
+          }
+        : {
+            'part': 'snippet',
+            'playlistId': AppConfig.okaforPlaylistlId,
+            'maxResults': '8',
+            'pageToken': _nextPageToken!,
+            'key': AppConfig.youtubeAPIKEY,
+          };
     Uri uri = Uri.https(
       _baseUrl,
       '/youtube/v3/playlistItems',

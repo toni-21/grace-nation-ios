@@ -19,7 +19,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 late AudioHandler _audioHandler;
 final _audioProvider = AudioProvider();
-  ThemeProvider themeChangeProvider = ThemeProvider();
+ThemeProvider themeChangeProvider = ThemeProvider();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final state = LoginState(await SharedPreferences.getInstance());
@@ -28,7 +28,7 @@ Future<void> main() async {
   if (Platform.isAndroid) {
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
   }
-    await FlutterDownloader.initialize(
+  await FlutterDownloader.initialize(
       debug:
           true, // optional: set to false to disable printing logs to console (default: true)
       ignoreSsl:
@@ -45,7 +45,7 @@ Future<void> main() async {
 
   // Plugin must be initialized before using
   themeChangeProvider.darkTheme =
-        await themeChangeProvider.darkThemePreference.getTheme();
+      await themeChangeProvider.darkThemePreference.getTheme();
 
   runApp(MyApp(loginState: state));
 }
@@ -62,7 +62,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _appProvider = AppProvider();
   final _authProvider = AuthProvider();
-
 
   @override
   Widget build(BuildContext context) {

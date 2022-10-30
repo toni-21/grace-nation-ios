@@ -88,18 +88,20 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
           ? actions == null
               ? null
               : [actions!]
-          : [
-              IconButton(
-                padding: EdgeInsets.only(right: 15),
-                onPressed: () {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (BuildContext context) {
-                    return NotificationsPage();
-                  }));
-                },
-                icon: SvgPicture.asset('assets/icons/notification.svg'),
-              ),
-            ],
+          : Provider.of<AppProvider>(context, listen:true).enableNotifications == false
+              ? null
+              : [
+                  IconButton(
+                    padding: EdgeInsets.only(right: 15),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (BuildContext context) {
+                        return NotificationsPage();
+                      }));
+                    },
+                    icon: SvgPicture.asset('assets/icons/notification.svg'),
+                  ),
+                ],
     );
   }
 

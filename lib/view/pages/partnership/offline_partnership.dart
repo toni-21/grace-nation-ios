@@ -237,6 +237,7 @@ class _OfflinePartnershipState extends State<OfflinePartnership>
               children: [
                 SizedBox(height: 24),
                 titleText('Naira Account (NGN)', context),
+                SizedBox(height: 12),
                 Column(
                   children: [
                     Row(
@@ -250,6 +251,7 @@ class _OfflinePartnershipState extends State<OfflinePartnership>
                         ),
                       ],
                     ),
+                    SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
@@ -261,6 +263,7 @@ class _OfflinePartnershipState extends State<OfflinePartnership>
                         ),
                       ],
                     ),
+                    SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
@@ -287,7 +290,7 @@ class _OfflinePartnershipState extends State<OfflinePartnership>
                         ),
                       ],
                     ),
-                    SizedBox(height: 5),
+                    SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
@@ -330,6 +333,7 @@ class _OfflinePartnershipState extends State<OfflinePartnership>
                         ),
                       ],
                     ),
+                    SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
@@ -341,6 +345,7 @@ class _OfflinePartnershipState extends State<OfflinePartnership>
                         ),
                       ],
                     ),
+                    SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
@@ -367,7 +372,7 @@ class _OfflinePartnershipState extends State<OfflinePartnership>
                         ),
                       ],
                     ),
-                    SizedBox(height: 5),
+                    SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(

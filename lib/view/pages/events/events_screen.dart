@@ -58,12 +58,13 @@ class _EventsScreenState extends State<EventsScreen> {
                   bottomRight: Radius.circular(10),
                 ),
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5, tileMode: TileMode.decal),
                   child: Container(
                     // height: 50,
                     padding: EdgeInsets.only(
                         left: 7.5, right: 7.5, top: 5, bottom: 5),
                     decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withOpacity(0.75),
                       borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(10),
                         bottomRight: Radius.circular(10),
@@ -78,9 +79,9 @@ class _EventsScreenState extends State<EventsScreen> {
                             Text(
                               event.title,
                               overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
+                              maxLines: 1,
                               style: TextStyle(
-                                color: Theme.of(context).primaryColor,
+                           //     color: Theme.of(context).,
                                 fontSize: 13.6,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -94,7 +95,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 2,
                                   style: TextStyle(
-                                    color: white,
+                                 //   color: white,
                                     fontSize: 9,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -104,7 +105,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 2,
                                   style: TextStyle(
-                                    color: white,
+                                 //   color: white,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -172,7 +173,7 @@ class _EventsScreenState extends State<EventsScreen> {
                           child: GridView.builder(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 24, vertical: 24),
-                          physics: AlwaysScrollableScrollPhysics(),
+                            physics: AlwaysScrollableScrollPhysics(),
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,

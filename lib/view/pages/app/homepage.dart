@@ -159,11 +159,11 @@ class _HomePageState extends State<HomePage> {
                         print("wE ARE DOWNLOADING NOW!!");
                         print(url);
                         resources.downloadVideo(
-                          videoUrl: url,
-                          videoName: name,
-                          duration: video.duration!,
-                          context: context,
-                        );
+                            videoUrl: url,
+                            videoName: name,
+                            duration: video.duration!,
+                            context: context,
+                            videoThumbnail: video.thumbnailUrl);
                         //resources.downloadVideo(, name, video.duration, context);
                       } else {
                         print("NOTHING TO DOWNLOAD");

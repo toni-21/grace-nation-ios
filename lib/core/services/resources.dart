@@ -2,23 +2,21 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:grace_nation/core/models/download_info.dart';
 import 'package:grace_nation/core/providers/app_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:grace_nation/utils/constants.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 
 class ResourcesApi {
   String? _taskId;
+  File? _thumbFile;
   Future<String> getVideoLink({required String videoId}) async {
     Map<String, dynamic> body = {
       "link": "https://www.youtube.com/watch?v=$videoId"
@@ -50,7 +48,7 @@ class ResourcesApi {
     required String videoName,
     required Duration duration,
     required BuildContext context,
-    //  required PublishSubject publishSubject,
+    required String videoThumbnail,
   }) async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -63,43 +61,33 @@ class ResourcesApi {
 
     if (statuses[Permission.storage]!.isGranted) {
       var dir = await getApplicationDocumentsDirectory();
-      String trimmedName = videoName.substring(0, min(videoName.length, 30));
+      String trimmedName = videoName.substring(0, min(videoName.length, 48));
 
       Directory vidDir = Directory("${dir.path}/videos/");
+      Directory thumbDir = Directory("${dir.path}/thumbnails/");
       bool exists = await vidDir.exists();
-      if (!exists) vidDir = await Directory("${dir.path}/videos/").create();
+      if (!exists) {
+        vidDir = await Directory("${dir.path}/videos/").create();
+      }
       String savePath = vidDir.path;
       final vidDuration = AppConfig().printDuration(duration);
-      prefs.setString('duration-$trimmedName', vidDuration);
+      await prefs.setString('duration-$trimmedName', vidDuration);
+      print('DURATION WAS SAVED AS ... duration-$trimmedName');
       print(savePath);
+      _thumbFile =
+          await fileFromImageUrl(videoThumbnail, thumbDir, trimmedName);
       try {
         final taskId = await FlutterDownloader.enqueue(
           url: downloadUrl,
           savedDir: savePath,
-          fileName: videoName,
+          fileName: trimmedName,
           showNotification:
               false, // show download progress in status bar (for Android)
           openFileFromNotification: false,
           saveInPublicStorage:
-            false, // click on notification to open downloaded file (for Android)
+              false, // click on notification to open downloaded file (for Android)
         );
         _taskId = taskId;
-        // await FlutterDownloader.registerCallback(callback);
-        // await Dio().download(
-        //   downloadUrl,
-        //   savePath,
-        //   onReceiveProgress: (received, total) {
-        //     if (total != -1) {
-        //       print("${(received / total * 100).toStringAsFixed(0)}%");
-
-        //       Provider.of<AppProvider>(context, listen: false)
-        //           .setDownloading(true);
-        //       Provider.of<AppProvider>(context, listen: false)
-        //           .setProgressString(
-        //               "${((received / total) * 100).toStringAsFixed(0)}%");
-        //     }
-        //   },
-        // );
         Provider.of<AppProvider>(context, listen: false).setDownloading(false);
         Provider.of<AppProvider>(context, listen: false)
             .setProgressString("Completed");
@@ -107,7 +95,7 @@ class ResourcesApi {
 
         //_extractAudio(savePath, trimmedName);
       } catch (e) {
-      return e.toString();
+        return e.toString();
       }
     } else {
       print("No permission to read and write.");
@@ -115,13 +103,29 @@ class ResourcesApi {
   }
 
   Future<void> deleteDownload(String id) async {
+    if (_thumbFile != null) await _thumbFile!.delete();
     await FlutterDownloader.remove(
       taskId: id,
       shouldDeleteContent: true,
     );
   }
 
+  Future<File> fileFromImageUrl(
+      String imageUrl, Directory thumbDir, String fileName) async {
+    final response = await http.get(Uri.parse(imageUrl));
+    bool exists = await thumbDir.exists();
+    if (!exists) {
+      thumbDir = await thumbDir.create();
+    }
+    final file =
+        await File(join(thumbDir.path, '${fileName.split('.').first}.jpg'))
+            .create();
+    file.writeAsBytesSync(response.bodyBytes);
+    return file;
+  }
+
   Future<void> cancelDownload(String id) async {
+    if (_thumbFile != null) await _thumbFile!.delete();
     await FlutterDownloader.cancel(
       taskId: id,
     );

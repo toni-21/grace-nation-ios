@@ -42,6 +42,7 @@ class AppProvider extends ChangeNotifier {
   PaymentInit? _payInit;
   String? _givingType;
   int _selectedDrawer = 0;
+  bool _enableNotifications = true;
   bool _isLoading = false;
   bool _downloading = false;
   String? _progressString;
@@ -81,6 +82,8 @@ class AppProvider extends ChangeNotifier {
   bool get downloading {
     return _downloading;
   }
+
+  bool get enableNotifications => _enableNotifications;
 
   void goToTab(index) {
     _selectedTab = index;
@@ -146,6 +149,11 @@ class AppProvider extends ChangeNotifier {
 
   Preferences get preferences {
     return _preferences!;
+  }
+
+  void setNotifications(bool n) async {
+    _enableNotifications = n;
+    notifyListeners();
   }
 
   void loadNoteList() async {

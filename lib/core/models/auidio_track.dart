@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'dart:io';
 
 class AudioTrack {
   String title;
   String source;
-  Uint8List? image;
+  File? image;
   DateTime date;
 
   AudioTrack(

@@ -387,4 +387,57 @@ class AuthApi {
       return Future.error(exception.toString());
     }
   }
+
+  Future<String> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String phone,
+    required String lastName,
+    required String firstName,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    String accessToken = prefs.getString('accessToken') ?? "";
+
+    Map<String, dynamic> body = {
+      "first_name": firstName,
+      "last_name": lastName,
+      "phone": phone,
+      "new_password": newPassword,
+      "old_password": oldPassword,
+    };
+
+    Map<String, String> requestHeaders = {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "X-Requested-With": "XMLHttpRequest",
+      "Authorization": "Bearer $accessToken"
+    };
+    try {
+      debugPrint(' endpoint is ${AppConfig.user}');
+      final response = await http.patch(
+        Uri.parse(AppConfig.user),
+        body: json.encode(body),
+        headers: requestHeaders,
+      );
+      debugPrint(response.body);
+      final Map<String, dynamic> decodedResponse = json.decode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // List roles = decodedResponse['data']['user']['roles'];
+        // if (roles.contains('partner')) {
+        //   debugPrint("PASSWORD CHANGE SUCCESSFUL");
+        //   return 'success';
+        // } else {
+        //   debugPrint("PASSWORD CHANGE FAILED");
+        //   return decodedResponse['message'];
+        // }
+        debugPrint("PASSWORD CHANGE SUCCESSFUL");
+        return 'success';
+      } else {
+        debugPrint("PASSWORD CHANGE FAILED");
+        return decodedResponse['message'];
+      }
+    } catch (exception) {
+      return Future.error(exception.toString());
+    }
+  }
 }
