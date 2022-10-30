@@ -1,17 +1,14 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grace_nation/core/models/auidio_track.dart';
-import 'package:grace_nation/core/providers/app_provider.dart';
 import 'package:grace_nation/core/providers/audio_provider.dart';
 import 'package:grace_nation/view/shared/widgets/confirmation_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:grace_nation/utils/constants.dart';
 import 'package:grace_nation/utils/styles.dart';
 import 'package:grace_nation/view/pages/downloads/audio_player.dart';
