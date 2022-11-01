@@ -355,11 +355,7 @@ class _PartnerLoginState extends State<PartnerLogin>
             ),
             Provider.of<AuthProvider>(context).isLoading
                 ? Container(
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodySmall!
-                        .color!
-                        .withOpacity(0.5),
+                    color: Colors.black.withOpacity(0.5),
                     child: Center(
                       child: CircularProgressIndicator(
                         color: babyBlue,

@@ -33,6 +33,10 @@ class _VerifyAccountState extends State<VerifyAccount>
   final authApi = AuthApi();
 
   String completeString = "";
+  bool timerStarted = false;
+  Timer? countdownTimer;
+  Duration duration = Duration(seconds: 60);
+
   final _formKey = GlobalKey<FormState>();
 
   late AnimationController controller;
@@ -54,8 +58,51 @@ class _VerifyAccountState extends State<VerifyAccount>
     controller.forward();
   }
 
+  void startTimer() {
+    timerStarted = true;
+    countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        final seconds = duration.inSeconds - 1;
+        if (seconds < 0) {
+          countdownTimer!.cancel();
+          timerStarted = false;
+        } else {
+          duration = Duration(seconds: seconds);
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    countdownTimer!.cancel();
+    super.dispose();
+  }
+
+  void stopTimer() {
+    setState(() {
+      if (timerStarted == true) {
+        countdownTimer!.cancel();
+        timerStarted = false;
+      }
+    });
+  }
+
+  void resetTimer() {
+    stopTimer();
+    setState(() {
+      duration = Duration(seconds: 60);
+    });
+  }
+
   void _submitForm(BuildContext context) async {
-    if (!_formKey.currentState!.validate()) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+
+    if (!_formKey.currentState!.validate() || pin1Controller.text == "") {
       return;
     }
     _formKey.currentState!.save();
@@ -133,13 +180,22 @@ class _VerifyAccountState extends State<VerifyAccount>
   }
 
   void _resendCode(BuildContext context) async {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
+    Provider.of<AuthProvider>(context, listen: false).toggleIsLoading(true);
     String response =
         await authApi.resendVerification(email: emailController.text);
-
+    Provider.of<AuthProvider>(context, listen: false).toggleIsLoading(false);
+    resetTimer();
+    startTimer();
     if (response == 'success') {
       showGeneralDialog(
         context: context,
@@ -247,6 +303,9 @@ class _VerifyAccountState extends State<VerifyAccount>
 
   @override
   Widget build(BuildContext context) {
+    final String seconds = duration.inSeconds > 0
+        ? "00:${duration.inSeconds.toString()} "
+        : "Code Expired ";
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBarWidget(
@@ -255,159 +314,186 @@ class _VerifyAccountState extends State<VerifyAccount>
         appBar: AppBar(),
       ),
       body: SafeArea(
-        child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: 24),
-            children: <Widget>[
-              SizedBox(height: 12),
-              Container(
-                margin: EdgeInsets.only(left: 5, right: 5),
-                width: 75,
-                height: 75,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: AssetImage('assets/images/lego-big.png'),
-                      fit: BoxFit.contain),
-                ),
-              ),
-              SizedBox(height: 7.5),
-              Text(
-                'GRACE \nNATION',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Theme.of(context).focusColor,
-                  fontSize: 17,
-                  height: .95,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: 7.5),
-              Container(
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'Liberation City',
-                    style: TextStyle(
-                        color: Color.fromRGBO(123, 127, 158, 1), fontSize: 18),
-                  )),
-              Padding(
-                padding: EdgeInsets.only(top: 36, bottom: 5),
-                child: Text(
-                  'Verify Account',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w100,
-                      color: Color.fromARGB(255, 58, 54, 63)),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 0, bottom: 20),
-                child: Text(
-                  'Please enter your E-mail address and the 6-digit number sent to your E-mail.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    //    color: Colors.black,
+        child: Stack(
+          children: [
+            ListView(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              children: <Widget>[
+                SizedBox(height: 12),
+                Container(
+                  margin: EdgeInsets.only(left: 5, right: 5),
+                  width: 75,
+                  height: 75,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage('assets/images/lego-big.png'),
+                        fit: BoxFit.contain),
                   ),
                 ),
-              ),
-              SizedBox(height: 12),
-              Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        // height: 57,
-                        child: TextFormField(
-                            controller: emailController,
-                            decoration: InputDecoration(
-                              prefixIcon: Padding(
-                                padding: EdgeInsets.only(left: 6),
-                                child: SvgPicture.asset(
-                                  'assets/icons/prefix-email.svg',
-                                  fit: BoxFit.scaleDown,
-                                  color: Theme.of(context).iconTheme.color,
-                                ),
-                              ),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: babyBlue),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              filled: true,
-                              fillColor: Theme.of(context).hoverColor,
-                              labelText: 'Email address',
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 12.0, horizontal: 12.0),
-                            ),
-                            validator: (String? value) {
-                              if (!RegExp(
-                                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                                  .hasMatch(value!)) {
-                                return "please return a valid email";
-                              }
-                            }),
-                      ),
-                      SizedBox(height: 24),
-                      Row(children: [
-                        otpItem(context, pin1Controller),
-                        otpItem(context, pin2Controller),
-                        otpItem(context, pin3Controller),
-                        otpItem(context, pin4Controller),
-                        otpItem(context, pin5Controller),
-                        otpItem(context, pin6Controller),
-                      ]),
-                    ],
-                  )),
-              SizedBox(height: 36),
-              Padding(
-                padding: EdgeInsets.only(left: 15, right: 15),
-                child: CustomButton(
-                    text: 'Continue',
-                    onTap: () {
-                      _submitForm(context);
-                      //context.goNamed(partnerLoginRouteName);
-                    }),
-              ),
-              SizedBox(height: 36),
-              Padding(
-                padding: EdgeInsets.only(top: 18, bottom: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Didn't get the code? ",
-                      softWrap: true,
-                      style: TextStyle(
-                          color: Theme.of(context)
-                              .textTheme
-                              .bodySmall!
-                              .color!
-                              .withOpacity(0.5),
-                          fontSize: 13),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        //context.goNamed(partnerLoginRouteName);
-                        _resendCode(context);
-                      },
-                      child: Text(
-                        'Resend code',
-                        softWrap: true,
-                        style: TextStyle(
-                            color: babyBlue,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
+                SizedBox(height: 7.5),
+                Text(
+                  'GRACE \nNATION',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).focusColor,
+                    fontSize: 17,
+                    height: .95,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ]),
+                SizedBox(height: 7.5),
+                Container(
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Liberation City',
+                      style: TextStyle(
+                          color: Color.fromRGBO(123, 127, 158, 1),
+                          fontSize: 18),
+                    )),
+                Padding(
+                  padding: EdgeInsets.only(top: 36, bottom: 5),
+                  child: Text(
+                    'Verify Account',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w100,
+                        color: Color.fromARGB(255, 58, 54, 63)),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 0, bottom: 20),
+                  child: Text(
+                    'Please enter your E-mail address and the 6-digit number sent to your E-mail.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      //    color: Colors.black,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
+                Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          // height: 57,
+                          child: TextFormField(
+                              controller: emailController,
+                              decoration: InputDecoration(
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.only(left: 6),
+                                  child: SvgPicture.asset(
+                                    'assets/icons/prefix-email.svg',
+                                    fit: BoxFit.scaleDown,
+                                    color: Theme.of(context).iconTheme.color,
+                                  ),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: babyBlue),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                filled: true,
+                                fillColor: Theme.of(context).hoverColor,
+                                hintText: 'Email address',
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 12.0),
+                              ),
+                              validator: (String? value) {
+                                if (!RegExp(
+                                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                    .hasMatch(value!)) {
+                                  return "please return a valid email";
+                                }
+                              }),
+                        ),
+                        SizedBox(height: 24),
+                        Row(children: [
+                          otpItem(context, pin1Controller),
+                          otpItem(context, pin2Controller),
+                          otpItem(context, pin3Controller),
+                          otpItem(context, pin4Controller),
+                          otpItem(context, pin5Controller),
+                          otpItem(context, pin6Controller),
+                        ]),
+                      ],
+                    )),
+                SizedBox(height: 36),
+                Padding(
+                  padding: EdgeInsets.only(left: 15, right: 15),
+                  child: CustomButton(
+                      text: 'Continue',
+                      onTap: () {
+                        _submitForm(context);
+                        //context.goNamed(partnerLoginRouteName);
+                      }),
+                ),
+                SizedBox(height: 36),
+                Padding(
+                  padding: EdgeInsets.only(top: 18, bottom: 20),
+                  child: timerStarted
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              seconds,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Didn't get the code? ",
+                              softWrap: true,
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .color!
+                                      .withOpacity(0.5),
+                                  fontSize: 13),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                _resendCode(context);
+                              },
+                              child: Text(
+                                'Resend code',
+                                softWrap: true,
+                                style: TextStyle(
+                                    color: babyBlue,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ],
+            ),
+            Provider.of<AuthProvider>(context).isLoading
+                ? Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: babyBlue,
+                      ),
+                    ))
+                : Container()
+          ],
+        ),
       ),
     );
   }

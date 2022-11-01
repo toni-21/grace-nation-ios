@@ -194,7 +194,7 @@ String get bible => '''
         <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
     </head>
     <body>
-<iframe src="https://biblia.com/api/plugins/embeddedbible?layout=normal&amp;width=400&amp;height=600&amp;startingReference=Ge1.1&amp;resourceName=nkjv" width="100%" height="100% "></iframe>
+<iframe src="https://biblia.com/api/plugins/embeddedbible?layout=minimal&amp;width=400&amp;height=600&amp;historyButtons=false&amp;startingReference=Ge1.1&amp;resourceName=nkjv" width="100%" height="100% "></iframe>
     <script>     
         var frame = document.querySelector("iframe");
         header = frame.contentDocument.querySelector("header");

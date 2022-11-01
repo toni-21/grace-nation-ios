@@ -213,17 +213,19 @@ class _PartnerRegistrationState extends State<PartnerRegistration>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: true,
-        backgroundColor: Theme.of(context).backgroundColor,
-        appBar: AppBarWidget(
-          actionScreen: true,
-          title: 'Register as Partner',
-          appBar: AppBar(),
-        ),
-        drawer: AppDrawer(),
-        body: Padding(
-          padding: EdgeInsets.only(left: xPadding, right: xPadding),
-          child: Form(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: AppBarWidget(
+        actionScreen: true,
+        title: 'Register as Partner',
+        appBar: AppBar(),
+      ),
+      drawer: AppDrawer(),
+      body: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: xPadding, right: xPadding),
+            child: Form(
               key: _formKey,
               child: ListView(
                 physics: BouncingScrollPhysics(),
@@ -363,8 +365,8 @@ class _PartnerRegistrationState extends State<PartnerRegistration>
                             vertical: 12.0, horizontal: 12.0),
                       ),
                       validator: (String? value) {
-                        if (value == null || value.length < 5) {
-                          return "This value cannot be empyty";
+                        if (value == null || value.length < 1) {
+                          return "This value cannot be empty";
                         }
                       },
                     ),
@@ -455,7 +457,20 @@ class _PartnerRegistrationState extends State<PartnerRegistration>
                     ),
                   ),
                 ],
-              )),
-        ));
+              ),
+            ),
+          ),
+          Provider.of<AuthProvider>(context).isLoading
+              ? Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: babyBlue,
+                    ),
+                  ))
+              : Container()
+        ],
+      ),
+    );
   }
 }
