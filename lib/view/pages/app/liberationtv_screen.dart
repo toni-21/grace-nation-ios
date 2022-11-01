@@ -731,8 +731,8 @@ class _LiberationTVScreenState extends State<LiberationTVScreen> {
   }
 }
 
-String iframeHttp =
-    '<iframe src="https://iframe.viewmedia.tv?channel=011" width="100%" height="100%" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
+String iframeHttp = '<iframe src=\"https://iframe.viewmedia.tv?channel=011\" width=\"100%\" height=\"100%\" frameborder=\"0\" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
+                 // '<iframe src="https://iframe.viewmedia.tv?channel=011" width="100%" height="100%" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
 
 String get player => '''
     <!DOCTYPE html>

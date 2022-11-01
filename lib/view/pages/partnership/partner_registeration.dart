@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +14,7 @@ import 'package:grace_nation/view/shared/widgets/custom_button.dart';
 import 'package:grace_nation/view/shared/widgets/failure_widget.dart';
 import 'package:grace_nation/view/shared/widgets/success_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PartnerRegistration extends StatefulWidget {
   @override
@@ -37,6 +39,8 @@ class _PartnerRegistrationState extends State<PartnerRegistration>
   bool isConfirming = false;
   bool confirmationFailed = false;
   bool accept = false;
+  bool passobscure = true;
+  bool confirmobscure = true;
 
   late AnimationController controller;
   late Animation<double> scaleAnimation;
@@ -79,6 +83,19 @@ class _PartnerRegistrationState extends State<PartnerRegistration>
     }
   }
 
+  _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+    } else {
+      print('Launching url went wrong');
+      return;
+    }
+  }
+
   void _submitForm(BuildContext context) async {
     FocusScopeNode currentFocus = FocusScope.of(context);
 
@@ -102,9 +119,6 @@ class _PartnerRegistrationState extends State<PartnerRegistration>
               lastName: _lastNameController.text);
 
       if (response == 'success') {
-        Timer(Duration(milliseconds: 2400), () => context.goNamed(
-            // partnerLoginRouteName,
-            setNewPasswordRouteName));
         showGeneralDialog(
           context: context,
           barrierLabel: "Barrier",
@@ -112,17 +126,19 @@ class _PartnerRegistrationState extends State<PartnerRegistration>
           barrierColor: Colors.black.withOpacity(0.5),
           transitionDuration: Duration(milliseconds: 200),
           pageBuilder: (_, __, ___) {
-            return StatefulBuilder(builder: (context, setState) {
-              return Center(
+            return StatefulBuilder(
+              builder: (context, setState) {
+                return Center(
                   child: SuccessWidget(
-                      title: 'Registration Successful',
-                      description: 'Welcome to Grace Nation!',
-                      callback: () {
-                        context.goNamed(
-                            // partnerLoginRouteName,
-                            setNewPasswordRouteName);
-                      }));
-            });
+                    title: 'Registration Successful',
+                    description: 'Welcome to Grace Nation!',
+                    callback: () {
+                      context.goNamed(verifyAccountRouteName);
+                    },
+                  ),
+                );
+              },
+            );
           },
           transitionBuilder: (_, anim, __, child) {
             return ScaleTransition(
@@ -147,7 +163,7 @@ class _PartnerRegistrationState extends State<PartnerRegistration>
             return StatefulBuilder(builder: (context, setState) {
               return Center(
                   child: FailureWidget(
-                title: 'Regrstration unsuccessful',
+                title: 'Registration unsuccessful',
                 description: response,
               ));
             });
@@ -372,11 +388,103 @@ class _PartnerRegistrationState extends State<PartnerRegistration>
                     ),
                   ),
                   SizedBox(height: 24),
-                  textField('Password', _passwordController,
-                      'assets/icons/prefix-padlock.svg'),
+                  SizedBox(
+                    //  height: 57,
+                    child: TextFormField(
+                      controller: _passwordController,
+                      obscureText: passobscure,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          icon: passobscure
+                              ? Icon(CupertinoIcons.eye_slash,
+                                  size: 25,
+                                  color: Theme.of(context).iconTheme.color)
+                              : Icon(CupertinoIcons.eye,
+                                  size: 25,
+                                  color: Theme.of(context).iconTheme.color),
+                          onPressed: () {
+                            setState(() {
+                              passobscure = !passobscure;
+                            });
+                          },
+                        ),
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(left: 6),
+                          child: SvgPicture.asset(
+                              'assets/icons/prefix-padlock.svg',
+                              fit: BoxFit.scaleDown,
+                              color: Theme.of(context).iconTheme.color),
+                        ),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: babyBlue),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 12.0, horizontal: 12.0),
+                        filled: true,
+                        fillColor: Theme.of(context).hoverColor,
+                        labelText: 'Password',
+                      ),
+                      validator: (String? value) {
+                        if (value!.length < 1) {
+                          return 'This value cannot be empty';
+                        }
+                      },
+                    ),
+                  ),
                   SizedBox(height: 24),
-                  textField('Confirm Password', _confirmPasswordController,
-                      'assets/icons/prefix-padlock.svg'),
+                  SizedBox(
+                    //  height: 57,
+                    child: TextFormField(
+                      controller: _confirmPasswordController,
+                      obscureText: confirmobscure,
+                      decoration: InputDecoration(
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(left: 6),
+                          child: SvgPicture.asset(
+                              'assets/icons/prefix-padlock.svg',
+                              fit: BoxFit.scaleDown,
+                              color: Theme.of(context).iconTheme.color),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: confirmobscure
+                              ? Icon(CupertinoIcons.eye_slash,
+                                  size: 25,
+                                  color: Theme.of(context).iconTheme.color)
+                              : Icon(CupertinoIcons.eye,
+                                  size: 25,
+                                  color: Theme.of(context).iconTheme.color),
+                          onPressed: () {
+                            setState(() {
+                              confirmobscure = !confirmobscure;
+                            });
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: babyBlue),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 12.0, horizontal: 12.0),
+                        filled: true,
+                        fillColor: Theme.of(context).hoverColor,
+                        labelText: 'Confirm Password',
+                      ),
+                      validator: (String? value) {
+                        if (value!.length < 1) {
+                          return 'This value cannot be empty';
+                        }
+                      },
+                    ),
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -405,14 +513,21 @@ class _PartnerRegistrationState extends State<PartnerRegistration>
                           fontSize: 12,
                         ),
                       ),
-                      Text(
-                        'terms and conditions',
-                        softWrap: true,
-                        style: TextStyle(
-                            color: Theme.of(context).textTheme.bodySmall!.color,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold),
-                      ),
+                      GestureDetector(
+                        onTap: () {
+                          _launchUrl(
+                              'https://gracenation.ng/termsandcondition');
+                        },
+                        child: Text(
+                          'terms and conditions',
+                          softWrap: true,
+                          style: TextStyle(
+                              color:
+                                  Theme.of(context).textTheme.bodySmall!.color,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      )
                     ],
                   ),
                   SizedBox(height: 30),
@@ -467,7 +582,8 @@ class _PartnerRegistrationState extends State<PartnerRegistration>
                     child: CircularProgressIndicator(
                       color: babyBlue,
                     ),
-                  ))
+                  ),
+                )
               : Container()
         ],
       ),

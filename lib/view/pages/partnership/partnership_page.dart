@@ -229,23 +229,22 @@ class _PartnershipPageState extends State<PartnershipPage>
                     children: [
                       _partnership.isEmpty
                           ? Container(
-                              padding:
-                                  EdgeInsets.symmetric(horizontal: xPadding),
-                              child: Column(
+                              child: ListView(
+                                padding:
+                                    EdgeInsets.symmetric(horizontal: xPadding),
                                 children: [
-                                  Expanded(
-                                      child: Image.asset(
+                                  SizedBox(height: 24),
+                                  Image.asset(
                                     'assets/images/partner-question.png',
                                     fit: BoxFit.scaleDown,
-                                  )),
-                                  Expanded(
-                                    child: Text(
-                                      'You have not created any partnership support yet, please click on the + button to start now. God bless you as you give your financial support to help the church grow and reach more lifes. ',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w400,
-                                      ),
+                                  ),
+                                  SizedBox(height: 24),
+                                  Text(
+                                    'You have not created any partnership support yet, please click on the + button to start now. God bless you as you give your financial support to help the church grow and reach more lifes. ',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400,
                                     ),
                                   ),
                                 ],

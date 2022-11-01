@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthProvider extends ChangeNotifier {
   final authApi = AuthApi();
   User? _authenticatedUser;
+  String currentEmail = "";
   bool _isLoading = false;
   List<String> supportTypes = [];
 
@@ -105,6 +106,7 @@ class AuthProvider extends ChangeNotifier {
     required String lastName,
   }) async {
     _isLoading = true;
+    currentEmail = email;
     notifyListeners();
     String message = await authApi.signUp(
         email: email,

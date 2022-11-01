@@ -25,6 +25,7 @@ class CreatePartnership extends StatefulWidget {
 class _CreatePartnershipState extends State<CreatePartnership> {
   final NumberFormat formatter = NumberFormat("#,##0", "en_US");
   final _dateController = TextEditingController();
+  final _amountController = TextEditingController();
   final ptApi = PartnershipApi();
   PaymentType partnerType = PaymentType.offline;
   //SELECTED VALUES
@@ -107,6 +108,7 @@ class _CreatePartnershipState extends State<CreatePartnership> {
             setState(() {
               selectedAmount = number;
               print("amount is $selectedAmount");
+              _amountController.text = number.toString();
               FocusManager.instance.primaryFocus!.unfocus();
             });
           },
@@ -312,9 +314,12 @@ class _CreatePartnershipState extends State<CreatePartnership> {
             height: 40,
             child: TextField(
               keyboardType: TextInputType.number,
+              controller: _amountController,
               decoration: InputDecoration(
-                hintText: "#",
-                hintStyle: TextStyle(color: partnerHintText),
+                hintText: selectedCurrency == "NGN" ? "₦" : "\$",
+                hintStyle: GoogleFonts.roboto(
+                  color: partnerHintText,
+                ),
                 filled: true,
                 fillColor: Theme.of(context).hoverColor,
                 contentPadding: EdgeInsets.only(top: 6, left: 12),
@@ -334,14 +339,13 @@ class _CreatePartnershipState extends State<CreatePartnership> {
                 ),
               ),
               onChanged: (value) {
-                selectedAmount = 0;
                 selectedAmount = int.parse(value);
                 print("amount is $selectedAmount");
               },
               onTap: () {
-                setState(() {
-                  selectedAmount = 0;
-                });
+                // setState(() {
+                //   selectedAmount = 0;
+                // });
               },
             ),
           ),
@@ -489,7 +493,8 @@ class _CreatePartnershipState extends State<CreatePartnership> {
                       children: [
                         Expanded(
                           child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            padding:
+                                EdgeInsets.only(left: 20, top: 9, right: 20),
                             child: Text(
                               '*Please note that you will be required to make your first payment to complete online payment',
                               style: TextStyle(color: Colors.red, fontSize: 12),
@@ -499,70 +504,77 @@ class _CreatePartnershipState extends State<CreatePartnership> {
                       ],
                     ),
               SizedBox(height: 20),
-              titleText('Select Start Date'),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: !offlinePaying
-                          ? () {
-                              _dateController.text = "";
-                            }
-                          : () async {
-                              final DateTime? picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: startDateTime ?? DateTime.now(),
-                                  firstDate: DateTime(2015, 8),
-                                  lastDate: DateTime(2101));
-                              if (picked != null) {
-                                setState(() {
-                                  startDateTime = picked;
-                                  startDate =
-                                      DateFormat('yyyy-MM-dd').format(picked);
-                                  print('startDate is $startDate');
-                                  _dateController.text = startDate!;
-                                });
-                              }
-                            },
-                      child: SizedBox(
-                        height: 40,
-                        child: TextFormField(
-                          controller: _dateController,
-                          decoration: InputDecoration(
-                            enabled: false,
-                            hintText: 'Please Select Date',
-                            hintStyle: TextStyle(color: partnerHintText),
-                            filled: true,
-                            fillColor: Theme.of(context).hoverColor,
-                            suffixIcon:
-                                Icon(Icons.calendar_month, color: deepBlue),
-                            contentPadding: EdgeInsets.only(top: 6, left: 12),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                style: BorderStyle.solid,
-                                color: Color.fromRGBO(173, 173, 173, 0.3),
+
+              !offlinePaying ? Container() : titleText('Select Start Date'),
+
+              !offlinePaying
+                  ? Container()
+                  : Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: !offlinePaying
+                                ? () {
+                                    _dateController.text = "";
+                                  }
+                                : () async {
+                                    final DateTime? picked =
+                                        await showDatePicker(
+                                            context: context,
+                                            initialDate:
+                                                startDateTime ?? DateTime.now(),
+                                            firstDate: DateTime(2015, 8),
+                                            lastDate: DateTime(2101));
+                                    if (picked != null) {
+                                      setState(() {
+                                        startDateTime = picked;
+                                        startDate = DateFormat('yyyy-MM-dd')
+                                            .format(picked);
+                                        print('startDate is $startDate');
+                                        _dateController.text = startDate!;
+                                      });
+                                    }
+                                  },
+                            child: SizedBox(
+                              height: 40,
+                              child: TextFormField(
+                                controller: _dateController,
+                                decoration: InputDecoration(
+                                  enabled: false,
+                                  hintText: 'Please Select Date',
+                                  hintStyle: TextStyle(color: partnerHintText),
+                                  filled: true,
+                                  fillColor: Theme.of(context).hoverColor,
+                                  suffixIcon: Icon(Icons.calendar_month,
+                                      color: deepBlue),
+                                  contentPadding:
+                                      EdgeInsets.only(top: 6, left: 12),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      style: BorderStyle.solid,
+                                      color: Color.fromRGBO(173, 173, 173, 0.3),
+                                    ),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      style: BorderStyle.solid,
+                                      color: babyBlue,
+                                    ),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                ),
+                                validator: (String? value) {
+                                  if (value == null) {
+                                    return 'value must not be empty';
+                                  }
+                                },
                               ),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                style: BorderStyle.solid,
-                                color: babyBlue,
-                              ),
-                              borderRadius: BorderRadius.circular(6),
                             ),
                           ),
-                          validator: (String? value) {
-                            if (value == null) {
-                              return 'value must not be empty';
-                            }
-                          },
                         ),
-                      ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
               SizedBox(height: 20),
               titleText('Giving Duration'),
               Row(

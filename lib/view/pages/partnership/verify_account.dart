@@ -45,6 +45,9 @@ class _VerifyAccountState extends State<VerifyAccount>
   @override
   void initState() {
     super.initState();
+    setState(() {
+      emailController.text = Provider.of<AuthProvider>(context,listen: false).currentEmail;
+    });
 
     controller =
         AnimationController(vsync: this, duration: Duration(milliseconds: 450));

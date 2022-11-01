@@ -263,7 +263,6 @@ class _SetNewPassswordState extends State<SetNewPasssword>
                     ),
                     filled: true,
                     fillColor: white,
-                    hintText: '******************',
                   ),
                   validator: (String? value) {
                     if (value!.length < 1) {
