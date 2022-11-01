@@ -9,17 +9,19 @@ import 'package:grace_nation/core/providers/auth_provider.dart';
 import 'package:grace_nation/core/providers/theme_provider.dart';
 import 'package:grace_nation/core/providers/user_states.dart';
 import 'package:grace_nation/router/audio_player_handler.dart';
+import 'package:grace_nation/utils/constants.dart';
 import 'package:grace_nation/utils/styles.dart';
+import 'package:grace_nation/view/pages/downloads/audio_player.dart';
 import 'router/routes.dart';
 
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 late AudioHandler _audioHandler;
 final _audioProvider = AudioProvider();
 ThemeProvider themeChangeProvider = ThemeProvider();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final state = LoginState(await SharedPreferences.getInstance());
@@ -64,6 +66,35 @@ class _MyAppState extends State<MyApp> {
   final _authProvider = AuthProvider();
 
   @override
+  void initState() {
+    AudioService.notificationClicked.listen((event) {
+      print('---AUDIO NOTIFICATION Clicked EVENT is $event ---');
+      if (event) {
+        // goToNowPlaying();
+        if (navigatorKey.currentState != null && _audioProvider.isPlaying) {
+          navigatorKey.currentState!.push(
+            MaterialPageRoute(
+              builder: (BuildContext context) => AudioPlayerWidget(),
+            ),
+          );
+        }
+      }
+    });
+    super.initState();
+  }
+
+  void goToNowPlaying() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(audioClickKey, true);
+  }
+
+  @override
+  void dispose() {
+    if (mounted) _audioHandler.stop();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
@@ -81,7 +112,8 @@ class _MyAppState extends State<MyApp> {
         ),
         Provider<MyRouter>(
           lazy: false,
-          create: (BuildContext createContext) => MyRouter(widget.loginState),
+          create: (BuildContext createContext) =>
+              MyRouter(widget.loginState, navigatorKey),
         )
       ],
       child: Builder(
@@ -95,6 +127,7 @@ class _MyAppState extends State<MyApp> {
             routeInformationParser: router.routeInformationParser,
             routerDelegate: router.routerDelegate,
             debugShowCheckedModeBanner: false,
+
             title: 'Navigation App',
             theme: Styles.themeData(
                 Provider.of<ThemeProvider>(context).darkTheme, context),

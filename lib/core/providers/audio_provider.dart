@@ -45,6 +45,7 @@ class AudioProvider extends ChangeNotifier {
   bool get isRepeat => playbackMode == PlaybackMode.repeat;
   bool get isNormal => playbackMode == PlaybackMode.normal;
   bool get isShuffled => _isShuffled;
+  bool get isPlaying => _isPlaying;
 
   Duration get currentDuration => _currentDuration;
   Duration get currentPostion => _currentPosition;
@@ -66,13 +67,14 @@ class AudioProvider extends ChangeNotifier {
         if (playbackMode == PlaybackMode.repeat) {
           if (currentPlaylistIndex == playlist.length - 1) {
             currentPlaylistIndex = 0;
+
             playPlayList();
           } else {
             nextAudio();
           }
         } else {
           if (currentPlaylistIndex == playlist.length - 1) {
-            //currentPlaylistIndex = 0;
+            print('provider side completed');
             stop();
             return;
           } else {
@@ -159,12 +161,13 @@ class AudioProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> stop() async {
+  Future<void> stop({bool temp = false}) async {
     await audioPlayer.stop();
     await audioPlayer.release();
     _isPlaying = false;
     playbackMode = PlaybackMode.normal;
     status = PlaybackStatus.idle;
+    audioPlayer.state = PlayerState.stopped;
     _currentDuration = Duration.zero;
     _currentPosition = Duration.zero;
     notifyListeners();

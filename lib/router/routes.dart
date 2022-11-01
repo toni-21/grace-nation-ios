@@ -39,19 +39,20 @@ import 'package:grace_nation/view/shared/screens/error.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyRouter {
-  // 1
   final LoginState loginState;
-  MyRouter(this.loginState);
+  final GlobalKey<NavigatorState> navigatorKey;
+  MyRouter(this.loginState, this.navigatorKey);
 
   // 2
   late final router = GoRouter(
+  
     // 3
     refreshListenable: loginState,
     // 4
     debugLogDiagnostics: true,
     // 5
     //  urlPathStrategy: UrlPathStrategy.path,
-
+    navigatorKey: navigatorKey,
     // 6
     routes: [
       GoRoute(
@@ -61,8 +62,12 @@ class MyRouter {
           final prefs = await SharedPreferences.getInstance();
           final loginState = LoginState(prefs);
           if (loginState.onboarded == true) {
-            return state
-                .namedLocation(homeRouteName, params: {'tab': 'homepage'});
+            if (loginState.audioClick == true) {
+              return state.namedLocation(audioRouteName);
+            } else {
+              return state
+                  .namedLocation(homeRouteName, params: {'tab': 'homepage'});
+            }
           } else {
             return state.namedLocation(splashRouteName);
           }
@@ -145,6 +150,7 @@ class MyRouter {
       ),
       GoRoute(
         name: audioRouteName,
+        // parentNavigatorKey: navigatorKey,
         path: '/audioPlayer',
         pageBuilder: (context, state) => MaterialPage<void>(
           key: state.pageKey,

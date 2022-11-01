@@ -9,7 +9,7 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   AudioPlayerHandler(this.audioProvider) {
     playbackState.add(playbackState.value.copyWith(
       controls: [MediaControl.play],
-      processingState: AudioProcessingState.loading,
+      //processingState: AudioProcessingState.loading,
     ));
 
     final player = audioProvider.audioPlayer;
@@ -25,6 +25,7 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     });
 
     player.onPlayerComplete.listen((_) {
+  
       if (audioProvider.playlist.isEmpty) {
         playbackState.add(
           PlaybackState(
@@ -52,13 +53,17 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   // @override
   // Future<void> play() => audioProvider.resume();
 
-   @override
+  @override
   Future<void> play() async {
     // playbackState.add(playbackState.value.copyWith(
     //   playing: true,
     //   controls: [MediaControl.pause],
     // ));
-    await audioProvider.resume();
+
+    audioProvider.audioPlayer.state == PlayerState.stopped
+        ? await audioProvider.playPlayList()
+        : 
+        await audioProvider.resume();
   }
 
   @override
@@ -77,6 +82,11 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   Future<void> stop() async {
     //await session?.setActive(true);
     await audioProvider.stop();
+    playbackState.add(
+      PlaybackState(
+        processingState: AudioProcessingState.completed,
+      ),
+    );
   }
 
   @override
@@ -112,7 +122,7 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
           ? AudioProcessingState.buffering
           : audioProvider.audioPlayer.state == PlayerState.playing
               ? AudioProcessingState.ready
-              : AudioProcessingState.idle,
+              : AudioProcessingState.completed,
     );
   }
 }

@@ -36,6 +36,7 @@ const String congratsRouteName = 'congrats';
 const String onlineGivingRouteName = 'onlineGiving';
 const String offlineGivingRouteName = 'offlineGiving';
 const String onboardedKey = 'onboarded';
+const String audioClickKey = 'audioClick';
 
 const xPadding = 24.0;
 

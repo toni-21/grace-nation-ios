@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grace_nation/core/providers/auth_provider.dart';
+import 'package:grace_nation/core/services/authentication.dart';
 import 'package:grace_nation/utils/constants.dart';
 import 'package:grace_nation/utils/styles.dart';
 import 'package:grace_nation/view/shared/screens/drawer.dart';
@@ -25,6 +26,7 @@ class _PartnerLoginState extends State<PartnerLogin>
     with SingleTickerProviderStateMixin {
   bool obscureText = false;
   final _formKey = GlobalKey<FormState>();
+  final authApi = AuthApi();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -124,6 +126,73 @@ class _PartnerLoginState extends State<PartnerLogin>
           },
         );
       }
+    }
+  }
+
+  _resetPassword() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    Provider.of<AuthProvider>(context, listen: false).toggleIsLoading(true);
+    String response =
+        await authApi.requestPassswordReset(email: _emailController.text);
+    Provider.of<AuthProvider>(context, listen: false).toggleIsLoading(false);
+
+    if (response == 'success') {
+      showGeneralDialog(
+        context: context,
+        barrierLabel: "Barrier",
+        barrierDismissible: true,
+        barrierColor: Colors.black.withOpacity(0.5),
+        transitionDuration: Duration(milliseconds: 200),
+        pageBuilder: (_, __, ___) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Center(
+                child: SuccessWidget(
+                    title: 'Request successful',
+                    description: 'A reset link has been sent to your email',
+                    callback: () {}));
+          });
+        },
+        transitionBuilder: (_, anim, __, child) {
+          return ScaleTransition(
+            scale:
+                CurvedAnimation(parent: controller, curve: Curves.elasticInOut),
+            child: FadeTransition(
+              opacity: anim,
+              child: child,
+            ),
+          );
+        },
+      );
+    } else {
+      showGeneralDialog(
+        context: context,
+        barrierLabel: "Barrier",
+        barrierDismissible: true,
+        barrierColor: Colors.black.withOpacity(0.5),
+        transitionDuration: Duration(milliseconds: 200),
+        pageBuilder: (_, __, ___) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Center(
+                child: FailureWidget(
+              title: 'Request unsuccessful',
+              description: response,
+            ));
+          });
+        },
+        transitionBuilder: (_, anim, __, child) {
+          return ScaleTransition(
+            // position: tween.animate(anim),
+            scale:
+                CurvedAnimation(parent: controller, curve: Curves.elasticInOut),
+            child: FadeTransition(
+              opacity: anim,
+              child: child,
+            ),
+          );
+        },
+      );
     }
   }
 
@@ -276,7 +345,7 @@ class _PartnerLoginState extends State<PartnerLogin>
                         ),
                         TextButton(
                           onPressed: () {
-                            context.goNamed(resetPasswordRouteName);
+                            _resetPassword();
                           },
                           child: Text(
                             'Click Here',

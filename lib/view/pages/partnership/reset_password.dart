@@ -34,11 +34,12 @@ class _ResetPassswordState extends State<ResetPasssword>
       context.goNamed(setNewPasswordRouteName);
     } else {
       showDialog(
-          context: context,
-          builder: (context) {
-            return AlertWidget(
-                title: 'Something went wrong', description: response);
-          });
+        context: context,
+        builder: (context) {
+          return AlertWidget(
+              title: 'Something went wrong', description: response);
+        },
+      );
     }
   }
 
@@ -59,44 +60,42 @@ class _ResetPassswordState extends State<ResetPasssword>
             children: <Widget>[
               SizedBox(height: 12),
               Container(
-                      margin: EdgeInsets.only(left: 5, right: 5),
-                      width: 75,
-                      height: 75,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                            image: AssetImage('assets/images/lego-big.png'),
-                            fit: BoxFit.contain),
-                      ),
-                    ),
-                    SizedBox(height: 7.5),
-                    Text(
-                      'GRACE \nNATION',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).focusColor,
-                        fontSize: 17,
-                        height: .95,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(height: 7.5),
-                    Container(
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'Liberation City',
-                          style: TextStyle(
-                              color: Color.fromRGBO(123, 127, 158, 1),
-                              fontSize: 18),
-                        )),
+                margin: EdgeInsets.only(left: 5, right: 5),
+                width: 75,
+                height: 75,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/images/lego-big.png'),
+                      fit: BoxFit.contain),
+                ),
+              ),
+              SizedBox(height: 7.5),
+              Text(
+                'GRACE \nNATION',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).focusColor,
+                  fontSize: 17,
+                  height: .95,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: 7.5),
+              Container(
+                  alignment: Alignment.center,
+                  child: const Text(
+                    'Liberation City',
+                    style: TextStyle(
+                        color: Color.fromRGBO(123, 127, 158, 1), fontSize: 18),
+                  )),
               Padding(
                 padding: EdgeInsets.only(top: 36, bottom: 5),
                 child: Text(
                   'Reset Password',
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w100,
-                    color: Color.fromARGB(255, 58, 54, 63)
-                  ),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w100,
+                      color: Color.fromARGB(255, 58, 54, 63)),
                 ),
               ),
               Padding(

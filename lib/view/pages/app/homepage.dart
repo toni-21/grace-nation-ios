@@ -489,18 +489,11 @@ class _HomePageState extends State<HomePage> {
                         itemCount: eventList.length,
                         itemBuilder: (BuildContext context, int index) {
                           final Event event = eventList[index];
-
-                          // Future.delayed(Duration(milliseconds: 500), () {
-                          //   Provider.of<AppProvider>(context, listen: false)
-                          //       .setEventsList(eventList);
-                          // });
-
                           final DateFormat dateFormate =
                               DateFormat('yyy-MM-dd');
                           final startdateTime =
                               dateFormate.parse(event.startDate!);
                           final enddateTime = dateFormate.parse(event.endDate!);
-
                           String suffixStart =
                               AppConfig().formatDate(startdateTime, true);
                           String suffixEnd =
@@ -518,24 +511,27 @@ class _HomePageState extends State<HomePage> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 4),
                               decoration: BoxDecoration(
-                                  color: Theme.of(context).hoverColor,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(12)),
-                                  boxShadow: kElevationToShadow[2]),
+                                color: Theme.of(context).hoverColor,
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(12),
+                                ),
+                                boxShadow: kElevationToShadow[2],
+                              ),
                               child: Row(
                                 children: [
                                   Container(
                                     height: 67,
                                     width: 51,
                                     decoration: BoxDecoration(
-                                        color:
-                                            Theme.of(context).primaryColorDark,
+                                        color: Theme.of(context)
+                                            .primaryColorDark
+                                            .withOpacity(0.05),
                                         borderRadius: BorderRadius.circular(10),
                                         image: event.coverImage != null
                                             ? DecorationImage(
                                                 image: NetworkImage(
                                                     event.coverImage!.url!),
-                                                fit: BoxFit.fill,
+                                                fit: BoxFit.fitHeight,
                                               )
                                             : null),
                                   ),

@@ -37,11 +37,11 @@ class EventDetails extends StatelessWidget {
                 height: 500,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColorDark,
+                    color: Theme.of(context).primaryColorDark.withOpacity(0.05),
                     image: event.coverImage != null
                         ? DecorationImage(
                             image: NetworkImage(event.coverImage!.url!),
-                            fit: BoxFit.fill,
+                            fit: BoxFit.fitHeight,
                           )
                         : null),
               ),

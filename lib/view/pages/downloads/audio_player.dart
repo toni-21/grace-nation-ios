@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:grace_nation/core/providers/app_provider.dart';
 import 'package:grace_nation/core/providers/audio_provider.dart';
+import 'package:grace_nation/utils/constants.dart';
 import 'package:grace_nation/utils/styles.dart';
 import 'package:grace_nation/view/shared/widgets/appbar.dart';
 import 'package:grace_nation/view/shared/widgets/infinite_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AudioPlayerWidget extends StatefulWidget {
   @override
@@ -23,6 +25,7 @@ class _AudioPlayerState extends State<AudioPlayerWidget>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AudioProvider>(context, listen: false).playPlayList();
     });
+    returnNowPlayingState();
     super.initState();
   }
 
@@ -31,6 +34,11 @@ class _AudioPlayerState extends State<AudioPlayerWidget>
     if (mounted) {
       super.setState(fn);
     }
+  }
+
+  void returnNowPlayingState() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(audioClickKey, false);
   }
 
   String formatTime(Duration duration) {

@@ -310,17 +310,13 @@ class _SetNewPassswordState extends State<SetNewPasssword>
               ),
 
               SizedBox(height: 64),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CustomButton(
-                      text: 'Reset Password',
-                      onTap: () {
-                        _resetPassword(context);
-                        // context.goNamed(partnerLoginRouteName);
-                      })
-                ],
-              ),
+
+              CustomButton(
+                  text: 'Reset Password',
+                  onTap: () {
+                    _resetPassword(context);
+                    // context.goNamed(partnerLoginRouteName);
+                  }),
             ],
           ),
         ),

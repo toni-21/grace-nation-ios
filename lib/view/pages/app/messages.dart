@@ -206,49 +206,59 @@ class _MessagesScreenState extends State<MessagesScreen>
           return CustomRectTween(begin: begin!, end: end!);
         },
         tag: Text('heroPreview'),
-        child: Wrap(
-          direction: Axis.vertical,
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width / 2.4,
-              height: MediaQuery.of(context).size.height / 6.4,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(8),
+        child: SizedBox(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+
+            crossAxisAlignment: CrossAxisAlignment.start,
+
+            // direction: Axis.vertical,
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width / 2.4,
+                height: MediaQuery.of(context).size.height / 6.4,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(8),
+                  ),
+                  image: DecorationImage(
+                      image: NetworkImage(
+                        // 'assets/images/sermon_image1.png',
+                        video.thumbnailUrl,
+                      ),
+                      fit: BoxFit.cover),
                 ),
-                image: DecorationImage(
-                    image: NetworkImage(
-                      // 'assets/images/sermon_image1.png',
-                      video.thumbnailUrl,
+              ),
+              SizedBox(height: 1),
+              Flexible(
+                child: Text(
+                  video.title,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    // '1h 14m',
+                    // duration,
+                    "${video.publishedAt.day} ${DateFormat.MMM().format(video.publishedAt)}, ${video.publishedAt.year}",
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: sermonTextAsh,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
                     ),
-                    fit: BoxFit.cover),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 1),
-            SizedBox(
-              width: 160,
-              child: Text(
-                //   'Dealing with the Enemy',
-                video.title,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Text(
-              // '1h 14m',
-              // duration,
-              "${video.publishedAt.day} ${DateFormat.MMM().format(video.publishedAt)}, ${video.publishedAt.year}",
-              style: TextStyle(
-                color: sermonTextAsh,
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -320,12 +330,24 @@ class _MessagesScreenState extends State<MessagesScreen>
                                       controller: mainScrollController,
                                       gridDelegate:
                                           SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 2,
-                                        mainAxisSpacing: 10,
-                                        crossAxisSpacing: 15,
+                                        mainAxisExtent:
+                                            MediaQuery.of(context).size.width >
+                                                    375
+                                                ? null
+                                                : MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    4.2,
+                                        crossAxisCount:
+                                            MediaQuery.of(context).size.width >
+                                                    375
+                                                ? 2
+                                                : 1,
+                                        mainAxisSpacing: 0, //10,
+                                        crossAxisSpacing: 0, //15,
 
                                         // width / height: fixed for *all* items
-                                        childAspectRatio: 0.95,
+                                        childAspectRatio: 0.95, // 0.25,
                                       ),
                                       shrinkWrap: true,
                                       itemCount: videoList.length,
