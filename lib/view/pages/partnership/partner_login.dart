@@ -66,8 +66,11 @@ class _PartnerLoginState extends State<PartnerLogin>
       );
 
       if (response == 'success') {
-        Timer(Duration(milliseconds: 2400),
-            () => context.goNamed(partnershipPageRouteName));
+        Timer(Duration(milliseconds: 2400), () {
+          if (mounted) {
+            context.goNamed(partnershipPageRouteName);
+          }
+        });
         showGeneralDialog(
           context: context,
           barrierLabel: "Barrier",
@@ -345,7 +348,8 @@ class _PartnerLoginState extends State<PartnerLogin>
                         ),
                         TextButton(
                           onPressed: () {
-                            _resetPassword();
+                          context.goNamed(resetPasswordRouteName);
+                            //_resetPassword();
                           },
                           child: Text(
                             'Click Here',

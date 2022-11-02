@@ -187,7 +187,7 @@ class PaymentApi {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     String accessToken = prefs.getString('accessToken') ?? "";
-    String uuids = prefs.getString('uuid')!;
+    // String uuids = prefs.getString('uuid')!;
 
     Map<String, String> requestHeaders = {
       "Content-Type": "application/json",
@@ -199,7 +199,7 @@ class PaymentApi {
       if (file.path == "" || file.path == null) {
         return "No file provided";
       }
-      print('REQEST IS ..${AppConfig.partnerships}/payments/$uuids/evidence');
+      print('REQEST IS ..${AppConfig.partnerships}/payments/$uuid/evidence');
       var request = http.MultipartRequest(
         "POST",
         Uri.parse('${AppConfig.partnerships}/payments/$uuid/evidence'),

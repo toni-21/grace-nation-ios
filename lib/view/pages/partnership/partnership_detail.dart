@@ -34,6 +34,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
   final fileController = TextEditingController();
   final paymentApi = PaymentApi();
   late Partnership pts;
+  bool _isLoading = false;
   PlatformFile? document;
   var filePath = "";
   var fileName = "";
@@ -177,8 +178,8 @@ class _PartnershipDetailState extends State<PartnershipDetail>
                 GestureDetector(
                   onTap: () {
                     showModalBottomSheet(
-                        isScrollControlled: true,
-                        isDismissible: false,
+                         isScrollControlled: true,
+                        // isDismissible: true,
                         backgroundColor: Colors.transparent,
                         context: context,
                         builder: (BuildContext context) {
@@ -472,72 +473,6 @@ class _PartnershipDetailState extends State<PartnershipDetail>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // titleText('Select Month of Record'),
-                  // dropdownField('Please Select', [
-                  //   DropDownValueModel(name: 'January', value: '1'),
-                  //   DropDownValueModel(name: 'February', value: '2'),
-                  //   DropDownValueModel(name: 'March', value: '3'),
-                  //   DropDownValueModel(name: 'April', value: '4'),
-                  //   DropDownValueModel(name: 'May', value: '5'),
-                  //   DropDownValueModel(name: 'June', value: '6'),
-                  //   DropDownValueModel(name: 'July', value: '7'),
-                  //   DropDownValueModel(name: 'August', value: '8'),
-                  //   DropDownValueModel(name: 'September', value: '9'),
-                  //   DropDownValueModel(name: 'October', value: '10'),
-                  //   DropDownValueModel(name: 'November', value: '11'),
-                  //   DropDownValueModel(name: 'December', value: '12'),
-                  // ]),
-                  // SizedBox(height: 12),
-                  // titleText('Select Date of Payment'),
-                  // dropdownField('Please Record', [
-                  //   DropDownValueModel(name: '1', value: '1'),
-                  //   DropDownValueModel(name: '2', value: '2'),
-                  //   DropDownValueModel(name: '3', value: '3'),
-                  //   DropDownValueModel(name: '4', value: '4'),
-                  //   DropDownValueModel(name: '5', value: '5'),
-                  //   DropDownValueModel(name: '6', value: '6'),
-                  //   DropDownValueModel(name: '7', value: '7'),
-                  //   DropDownValueModel(name: '8', value: '8'),
-                  //   DropDownValueModel(name: '9', value: '9'),
-                  //   DropDownValueModel(name: '10', value: '10'),
-                  // ]),
-                  // SizedBox(height: 12),
-                  // titleText('Amount paid'),
-                  // SizedBox(
-                  //   height: 50,
-                  //   child: TextFormField(
-                  //     keyboardType: TextInputType.number,
-                  //     decoration: InputDecoration(
-                  //       hintText: 'Please input amount paid',
-                  //       hintStyle: TextStyle(
-                  //         fontSize: 14,
-                  //       ),
-                  //       filled: true,
-                  //       fillColor: Theme.of(context).hoverColor,
-                  //       contentPadding: EdgeInsets.only(top: 6, left: 12),
-                  //       enabledBorder: OutlineInputBorder(
-                  //         borderSide: BorderSide(
-                  //           style: BorderStyle.solid,
-                  //           color: Color.fromRGBO(173, 173, 173, 0.3),
-                  //         ),
-                  //         borderRadius: BorderRadius.circular(6),
-                  //       ),
-                  //       focusedBorder: OutlineInputBorder(
-                  //         borderSide: BorderSide(
-                  //           style: BorderStyle.solid,
-                  //           color: babyBlue,
-                  //         ),
-                  //         borderRadius: BorderRadius.circular(6),
-                  //       ),
-                  //     ),
-                  //     validator: (String? value) {
-                  //       if (value == null) {
-                  //         return 'value must not be empty';
-                  //       }
-                  //     },
-                  //   ),
-                  // ),
-                  // SizedBox(height: 12),
                   titleText('Payment Evidence'),
                   GestureDetector(
                     onTap: () async {
@@ -623,10 +558,15 @@ class _PartnershipDetailState extends State<PartnershipDetail>
   }
 
   void _submitForm(PlatformFile file) async {
+    setState(() {
+      _isLoading = true;
+    });
+
     String response =
         await paymentApi.addPaymentEvidence(file: file, uuid: pts.uuid);
-    // print(pts.transactions.toString());
-
+    setState(() {
+      _isLoading = false;
+    });
     if (response == 'success') {
       showGeneralDialog(
         context: context,
@@ -721,72 +661,84 @@ class _PartnershipDetailState extends State<PartnershipDetail>
         title: widget.text,
       ),
       body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          children: [
-            SizedBox(height: 24),
-            InkWell(onTap: () {}, child: partnershipWidget()),
-            SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Transactions',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    showModalBottomSheet(
-                        isScrollControlled: true,
-                        isDismissible: false,
-                        backgroundColor: Colors.transparent,
-                        context: context,
-                        builder: (BuildContext context) {
-                          return addRecord(context);
-                        });
-                  },
-                  child: Container(
-                    padding:
-                        EdgeInsets.only(top: 3, bottom: 3, left: 8, right: 8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColorLight,
-                      borderRadius: BorderRadius.circular(9),
+          child: Stack(
+        children: [
+          ListView(
+            padding: EdgeInsets.symmetric(horizontal: 24),
+            children: [
+              SizedBox(height: 24),
+              InkWell(onTap: () {}, child: partnershipWidget()),
+              SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Transactions',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Add Payment Record',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                          isScrollControlled: true,
+                         // isDismissible: false,
+                          backgroundColor: Colors.transparent,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return addRecord(context);
+                          });
+                    },
+                    child: Container(
+                      padding:
+                          EdgeInsets.only(top: 3, bottom: 3, left: 8, right: 8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColorLight,
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Add Payment Record',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 24),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount:
-                  pts.transactions == null ? 0 : pts.transactions!.length,
-              itemBuilder: (BuildContext context, int index) {
-                Transactions trc = pts.transactions![index];
-                int status = trc.status;
+                ],
+              ),
+              SizedBox(height: 24),
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount:
+                    pts.transactions == null ? 0 : pts.transactions!.length,
+                itemBuilder: (BuildContext context, int index) {
+                  Transactions trc = pts.transactions![index];
+                  int status = trc.status;
 
-                return status == 1
-                    ? completedTransaction(trc)
-                    : missedTransaction(trc);
-              },
-            ),
-          ],
-        ),
-      ),
+                  return status == 1
+                      ? completedTransaction(trc)
+                      : missedTransaction(trc);
+                },
+              ),
+            ],
+          ),
+          _isLoading
+              ? Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: babyBlue,
+                    ),
+                  ))
+              : Container()
+        ],
+      )),
     );
   }
 }

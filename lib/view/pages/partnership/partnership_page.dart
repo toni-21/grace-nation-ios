@@ -257,7 +257,7 @@ class _PartnershipPageState extends State<PartnershipPage>
                               ),
                             )
                           : ListView.builder(
-                              physics: BouncingScrollPhysics(),
+                              physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 24, vertical: 24),
                               // reverse: true,
