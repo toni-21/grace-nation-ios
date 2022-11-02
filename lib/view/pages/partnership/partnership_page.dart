@@ -127,7 +127,12 @@ class _PartnershipPageState extends State<PartnershipPage>
               SizedBox(width: 10),
               TextButton(
                 onPressed: () {
-                  _launchUrl('whatsapp://send?phone=+2348111691301');
+                  String str = Provider.of<AppProvider>(context, listen: false)
+                      .preferences
+                      .whatsappNumber!
+                      .split('0')
+                      .last;
+                  _launchUrl('whatsapp://send?phone=$str');
                 },
                 style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
@@ -155,7 +160,8 @@ class _PartnershipPageState extends State<PartnershipPage>
               SizedBox(width: 10),
               TextButton(
                 onPressed: () {
-                  _launchUrl('tel:07061405311');
+                  _launchUrl(
+                      'tel:${Provider.of<AppProvider>(context, listen: false).preferences.whatsappNumber}');
                 },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,

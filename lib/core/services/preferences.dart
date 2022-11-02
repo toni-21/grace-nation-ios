@@ -34,11 +34,9 @@ class PreferencesApi {
         }
         final Map<String, dynamic> json = decodedResponse['data'];
 
-        return Preferences(
-            embedCode: json["embed_code"],
-            bankAccounts: details,
-            supportNumber: json["support_number"],
-            whatsappNumber: json["whatsapp_number"]);
+        Preferences prefs = Preferences.fromJson(json);
+        prefs.bankAccounts = details;
+        return prefs;
       } else {
         debugPrint("PREFERENCES FAILED");
         print(decodedResponse["message"]);

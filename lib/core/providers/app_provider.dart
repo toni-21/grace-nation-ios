@@ -151,6 +151,30 @@ class AppProvider extends ChangeNotifier {
     return _preferences!;
   }
 
+
+    String get  player => '''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #000000;
+                height: 100%;
+                width: 100%;
+            }
+        </style>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    </head>
+    <body>
+    ${_preferences!.embedCode}
+    </body>
+    </html>
+  ''';
+
+
   void setNotifications(bool n) async {
     _enableNotifications = n;
     notifyListeners();

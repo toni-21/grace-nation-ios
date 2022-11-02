@@ -346,7 +346,12 @@ class _AppDrawerState extends State<AppDrawer> {
                             GestureDetector(
                               onTap: () {
                                 _launchURL(
-                                    'https://www.instagram.com/chrisokaforministries/');
+                                  Provider.of<AppProvider>(context,
+                                              listen: false)
+                                          .preferences
+                                          .instagramLink ??
+                                      "",
+                                );
                               },
                               child: Image.asset('assets/icons/instagram.png'),
                             ),
@@ -354,7 +359,12 @@ class _AppDrawerState extends State<AppDrawer> {
                             GestureDetector(
                               onTap: () {
                                 _launchURL(
-                                    'https://www.tiktok.com/@chrisokafor_');
+                                  Provider.of<AppProvider>(context,
+                                              listen: false)
+                                          .preferences
+                                          .tiktokLink ??
+                                      "",
+                                );
                               },
                               child: SvgPicture.asset(
                                 'assets/icons/tiktok.svg',
@@ -367,7 +377,12 @@ class _AppDrawerState extends State<AppDrawer> {
                             GestureDetector(
                               onTap: () {
                                 _launchURL(
-                                    'https://www.youtube.com/c/LiberationcityTV');
+                                  Provider.of<AppProvider>(context,
+                                              listen: false)
+                                          .preferences
+                                          .youtubeLink ??
+                                      "",
+                                );
                               },
                               child:
                                   SvgPicture.asset('assets/icons/youtube.svg'),
@@ -376,7 +391,12 @@ class _AppDrawerState extends State<AppDrawer> {
                             GestureDetector(
                               onTap: () {
                                 _launchURL(
-                                    'https://www.facebook.com/chrisokaforministries');
+                                  Provider.of<AppProvider>(context,
+                                              listen: false)
+                                          .preferences
+                                          .facebookLink ??
+                                      "",
+                                );
                               },
                               child:
                                   SvgPicture.asset('assets/icons/facebook.svg'),
