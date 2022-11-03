@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:grace_nation/core/models/support_category.dart';
 import 'package:grace_nation/core/models/user.dart';
 import 'package:grace_nation/core/services/authentication.dart';
 import 'package:grace_nation/utils/constants.dart';
@@ -149,8 +150,17 @@ class AuthProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     Map<String, dynamic> response = await authApi.getUserDetails();
     if (response['message'] == 'success') {
+      List list = response['data']['support_categories'] as List;
+      List<SupportCategory> supportCategories = [];
+      for (int i = 0; i < list.length; i++) {
+        final SupportCategory sup = SupportCategory.fromJson(list[i]);
+        supportCategories.add(sup);
+        print("SUPER ADDED ${sup.toString()}");
+      }
       _authenticatedUser =
           User.fromUserJson(response['data'], response['token']);
+      _authenticatedUser!.supportCategory = supportCategories;
+
       print(
           'LOGGED USER IS ${_authenticatedUser!.firstName} and token is ${_authenticatedUser!.accessToken}');
       prefs.setString('firstName', _authenticatedUser!.firstName);

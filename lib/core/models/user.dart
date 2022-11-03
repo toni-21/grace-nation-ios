@@ -1,3 +1,5 @@
+import 'package:grace_nation/core/models/support_category.dart';
+
 class User {
   final String firstName;
   final String lastName;
@@ -11,6 +13,7 @@ class User {
   final String? address;
   final String? avatar;
   final String accessToken;
+  List<SupportCategory>? supportCategory;
   final Map<String, dynamic>? country;
   final Map<String, dynamic>? state;
 
@@ -28,6 +31,7 @@ class User {
       this.occupation,
       this.country,
       this.state,
+      this.supportCategory,
       required this.accessToken});
 
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -42,6 +46,7 @@ class User {
       address: json["user"]["address"],
       gender: json["user"]["gender"],
       occupation: json["user"]["occupation"],
+      supportCategory: null,
       accessToken: json["token"]["access_token"]);
 
   factory User.fromUserJson(Map<String, dynamic> json, String token) => User(
@@ -56,6 +61,7 @@ class User {
         address: json["address"],
         gender: json["gender"],
         occupation: json["occupation"],
+        supportCategory: null,
         accessToken: token,
       );
 

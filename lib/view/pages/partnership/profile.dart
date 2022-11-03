@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grace_nation/core/models/support_category.dart';
 import 'package:grace_nation/core/providers/app_provider.dart';
 import 'package:grace_nation/core/services/authentication.dart';
 import 'package:grace_nation/view/pages/partnership/accessible_details.dart';
@@ -29,6 +30,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   bool _enableNotifications = true;
+  List<SupportCategory> categories = [];
   final authApi = AuthApi();
 
   static String getIconcolor(String text) {
@@ -45,15 +47,17 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  Future<void> getValues() async {
+    await Provider.of<AuthProvider>(context, listen: false).getUSerDetails();
+    categories =
+        Provider.of<AuthProvider>(context, listen: false).user.supportCategory!;
+    print(
+        "support categories are  ${Provider.of<AuthProvider>(context, listen: false).user.supportCategory.toString()}");
+  }
+
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Provider.of<AuthProvider>(context, listen: false).getUSerDetails();
-      print("support categories are");
-      print(Provider.of<AuthProvider>(context, listen: false)
-          .supportTypes
-          .toString());
-    });
+    getValues();
     super.initState();
   }
 
@@ -61,6 +65,13 @@ class _ProfileState extends State<Profile> {
     bool present = Provider.of<AuthProvider>(context, listen: false)
         .supportTypes
         .contains(key);
+    int count = 0;
+    for (int i = 0; i < categories.length; i++) {
+      if (categories[i].name == key) {
+        present = true;
+        count = categories[i].count;
+      }
+    }
     String colorPath = getIconcolor(key);
     return Row(
       children: [
@@ -81,7 +92,7 @@ class _ProfileState extends State<Profile> {
                 color: !present ? darkGray.withOpacity(0.125) : null,
               ),
               Text(
-                !present ? '0' : '+500',
+                '+${count.toString()}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Theme.of(context).primaryColorDark,
