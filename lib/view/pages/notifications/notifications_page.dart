@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:grace_nation/core/models/notification.dart';
+import 'package:grace_nation/core/providers/app_provider.dart';
 import 'package:grace_nation/core/services/notifications.dart';
 import 'package:grace_nation/utils/styles.dart';
 import 'package:grace_nation/view/pages/notifications/notification_congrats.dart';
 import 'package:grace_nation/view/shared/widgets/appbar.dart';
+import 'package:provider/provider.dart';
 
 class NotificationsPage extends StatefulWidget {
   @override
@@ -13,23 +15,6 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  List<Notifications>? notificationList;
-  final notApi = NotificationsApi();
-
-  @override
-  void initState() {
-    setList();
-    super.initState();
-  }
-
-  setList() async {
-    List<Notifications> list = await notApi.getNotifications();
-
-    setState(() {
-      notificationList = list;
-    });
-  }
-
   Widget achievment(Notifications notification) {
     return GestureDetector(
       onTap: () {
@@ -251,6 +236,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<Notifications> notificationList =
+        Provider.of<AppProvider>(context, listen: true).notificationList;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).backgroundColor,
@@ -259,67 +246,62 @@ class _NotificationsPageState extends State<NotificationsPage> {
         appBar: AppBar(),
         title: 'Notifications',
       ),
-      body: notificationList == null
+      body: notificationList.isEmpty
           ? Center(
-              child: CircularProgressIndicator(color: babyBlue),
+              child: Text(
+                'No Notifications Available',
+                style: TextStyle(
+                  color: redPayment,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             )
-          : notificationList!.isEmpty
-              ? Center(
-                  child: Text(
-                    'No Notifications Available',
-                    style: TextStyle(
-                      color: redPayment,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                )
-              : SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 22,
-                    horizontal: 24,
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          : SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                vertical: 22,
+                horizontal: 24,
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              ' X Clear All Notifications',
-                              style: TextStyle(
-                                color: redPayment,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          ' X Clear All Notifications',
+                          style: TextStyle(
+                            color: redPayment,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        SizedBox(height: 12),
-                        ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: notificationList!.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              Notifications notification =
-                                  notificationList![index];
-
-                              if (notification.type == 'achievment') {
-                                return achievment(notification);
-                              } else if (notification.type == 'reminder') {
-                                return reminder(notification);
-                              } else if (notification.type == 'testimony') {
-                                return newTestimony(notification);
-                              } else {
-                                return reminder(notification);
-                              }
-                            }),
-                        SizedBox(height: 24),
                       ],
                     ),
-                  ),
+                    SizedBox(height: 12),
+                    ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: notificationList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          Notifications notification = notificationList[index];
+
+                          if (notification.type == 'achievment') {
+                            return achievment(notification);
+                          } else if (notification.type == 'reminder') {
+                            return reminder(notification);
+                          } else if (notification.type == 'testimony') {
+                            return newTestimony(notification);
+                          } else {
+                            return reminder(notification);
+                          }
+                        }),
+                    SizedBox(height: 24),
+                  ],
                 ),
+              ),
+            ),
     );
   }
 }

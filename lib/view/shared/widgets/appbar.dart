@@ -88,7 +88,9 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
           ? actions == null
               ? null
               : [actions!]
-          : Provider.of<AppProvider>(context, listen:true).enableNotifications == false
+          : Provider.of<AppProvider>(context, listen: true)
+                      .enableNotifications ==
+                  false
               ? null
               : [
                   IconButton(
@@ -99,7 +101,16 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                         return NotificationsPage();
                       }));
                     },
-                    icon: SvgPicture.asset('assets/icons/notification.svg'),
+                    icon: Provider.of<AppProvider>(context)
+                            .notificationList
+                            .isEmpty
+                        ? Image.asset(
+                            'assets/icons/notification-read.png',
+                            scale: 3.75,
+                          )
+                        : SvgPicture.asset(
+                            'assets/icons/notification.svg',
+                          ), //'assets/icons/shuffle.svg'
                   ),
                 ],
     );

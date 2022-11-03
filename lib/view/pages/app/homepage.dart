@@ -42,6 +42,7 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     _listProvider = Provider.of<AppProvider>(context, listen: false);
     Provider.of<AppProvider>(context, listen: false).setPreferences();
+    Provider.of<AppProvider>(context, listen: false).setNotificationList();
     super.didChangeDependencies();
   }
 
@@ -98,13 +99,19 @@ class _HomePageState extends State<HomePage> {
               if (snapshot.hasError) {
                 return Scaffold(
                   backgroundColor: Theme.of(context).backgroundColor,
-                  body: Container(
+                  body: SingleChildScrollView(
+                    controller: mainScrollController,
+                    physics: BouncingScrollPhysics(),
+                    //padding: EdgeInsets.only(top: 10, left: 24),
+                    child: Container(
                       height: MediaQuery.of(context).size.height,
                       width: MediaQuery.of(context).size.width,
                       alignment: Alignment.center,
                       child: Center(
                         child: Text('An error has occured'),
-                      )),
+                      ),
+                    ),
+                  ),
                 );
               }
 

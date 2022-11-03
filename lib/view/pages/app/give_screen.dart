@@ -20,12 +20,13 @@ class GiveScreen extends StatefulWidget {
 }
 
 class _GiveScreenState extends State<GiveScreen> {
-  final NumberFormat formatter = NumberFormat('#,##,000');
+  final NumberFormat formatter = NumberFormat("#,##0", "en_US");
   final paymentApi = PaymentApi();
   bool isConfirming = false;
 
   PaymentType partnerType = PaymentType.offline;
   int? selectedAmount;
+  final _amountController = TextEditingController();
   String? selectedGivingType;
   String? memberId;
 
@@ -77,6 +78,7 @@ class _GiveScreenState extends State<GiveScreen> {
               selectedAmount = number;
               amoutFieldTapped = false;
               print("selectedAmount is $selectedAmount");
+              _amountController.text = number.toString();
               FocusManager.instance.primaryFocus!.unfocus();
             });
           },
@@ -235,6 +237,7 @@ class _GiveScreenState extends State<GiveScreen> {
             height: 40,
             child: TextField(
               keyboardType: TextInputType.number,
+              controller: _amountController,
               decoration: InputDecoration(
                 hintText: "₦",
                 hintStyle: GoogleFonts.roboto(color: partnerHintText),

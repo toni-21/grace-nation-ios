@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:grace_nation/core/models/download_info.dart';
 import 'package:grace_nation/core/models/event.dart';
 import 'package:grace_nation/core/models/notes_model.dart';
+import 'package:grace_nation/core/models/notification.dart';
 import 'package:grace_nation/core/models/partnership.dart';
 import 'package:grace_nation/core/models/payment_model.dart';
 import 'package:grace_nation/core/models/preferences.dart';
@@ -17,6 +18,7 @@ import 'package:grace_nation/core/services/notes_db_worker.dart';
 import 'package:grace_nation/core/services/preferences.dart';
 import 'package:grace_nation/core/services/resources.dart';
 import 'package:grace_nation/core/services/testimonies.dart';
+import 'package:grace_nation/core/services/notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppTab {
@@ -36,6 +38,7 @@ class ApDrawer {
 class AppProvider extends ChangeNotifier {
   GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
   final prefApi = PreferencesApi();
+    final notApi = NotificationsApi();
   //final AudioPlayer _audioPlayer = AudioPlayer();
   AudioHandler? _audioHandler;
   int _selectedTab = 0;
@@ -57,6 +60,7 @@ class AppProvider extends ChangeNotifier {
   TextEditingController? titleEditingController;
   TextEditingController? contentEditingController;
   Preferences? _preferences;
+   List<Notifications>? _notificationList = [];
 
   AudioHandler get audioHandler {
     return _audioHandler!;
@@ -151,6 +155,10 @@ class AppProvider extends ChangeNotifier {
     return _preferences!;
   }
 
+   List<Notifications> get notificationList {
+    return _notificationList!;
+  }
+
 
     String get  player => '''
     <!DOCTYPE html>
@@ -187,6 +195,11 @@ class AppProvider extends ChangeNotifier {
 
   Future<void> setPreferences() async {
     _preferences = await prefApi.getPreferences();
+    notifyListeners();
+  }
+
+  Future<void> setNotificationList() async {
+    _notificationList  =  await notApi.getNotifications();
     notifyListeners();
   }
 
