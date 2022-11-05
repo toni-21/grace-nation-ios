@@ -40,6 +40,9 @@ class _GiveScreenState extends State<GiveScreen> {
   Future? future;
   bool amoutFieldTapped = false;
 
+  List<int> ngnAmounts = [10000, 20000, 50000, 100000, 200000, 500000, 1000000];
+  List<int> usdAmounts = [10, 20, 50, 100, 200, 500, 1000];
+
   @override
   void initState() {
     future = _asyncmethodCall();
@@ -90,7 +93,7 @@ class _GiveScreenState extends State<GiveScreen> {
     }
   }
 
-  Widget amountItem(int number) {
+  Widget amountItem(int number, String sign) {
     return Padding(
         padding: EdgeInsets.only(right: 20),
         child: InkWell(
@@ -117,7 +120,7 @@ class _GiveScreenState extends State<GiveScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '₦${formatter.format(number)}',
+                '$sign${formatter.format(number)}',
                 style: GoogleFonts.roboto(
                   color: selectedAmount == number ? white : Colors.black,
                   fontSize: 13,
@@ -197,6 +200,9 @@ class _GiveScreenState extends State<GiveScreen> {
         dropDownItemCount: list.length,
         onChanged: ((value) {
           if (value == null || value == "") {
+            setState(() {
+              selectedGivingTypeId = 0;
+            });
             return;
           } else {
             print(value);
@@ -407,7 +413,6 @@ class _GiveScreenState extends State<GiveScreen> {
                           ),
                         ),
                         listTextStyle: TextStyle(color: Colors.black),
-                        enableSearch: false,
                         dropDownIconProperty: IconProperty(
                           icon: Icons.keyboard_arrow_down_outlined,
                           size: 30,
@@ -418,6 +423,10 @@ class _GiveScreenState extends State<GiveScreen> {
                         dropDownItemCount: currencyList.length,
                         onChanged: ((value) {
                           if (value == null || value == "") {
+                            setState(() {
+                              selectedCurrency = "NGN";
+                            });
+                            print("value is is ${value.toString()}");
                             return;
                           } else {
                             print('${value.name}');
@@ -462,21 +471,20 @@ class _GiveScreenState extends State<GiveScreen> {
               titleText('Select Amount'),
               SizedBox(height: 10),
               SizedBox(
-                height: 36,
-                child: ListView(
-                    physics: BouncingScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      amountItem(10000),
-                      amountItem(20000),
-                      amountItem(50000),
-                      amountItem(100000),
-                      amountItem(200000),
-                      amountItem(500000),
-                      amountItem(1000000)
-                    ]),
-              ),
+                  height: 36,
+                  child: ListView.builder(
+                      physics: BouncingScrollPhysics(),
+                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: ngnAmounts.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        int amt = selectedCurrency == "NGN"
+                            ? ngnAmounts[index]
+                            : usdAmounts[index];
+                        String ngn = selectedCurrency == "NGN" ? "₦" : "\$";
+
+                        return amountItem(amt, ngn);
+                      })),
               SizedBox(height: 5),
               titleText('or'),
               SizedBox(height: 7.5),
@@ -512,7 +520,7 @@ class _GiveScreenState extends State<GiveScreen> {
                         child: SizedBox(
                           height: 40,
                           child: TextField(
-                            keyboardType: TextInputType.number,
+                            keyboardType: TextInputType.visiblePassword,
                             decoration: InputDecoration(
                               hintText: "Please input giving id",
                               hintStyle: TextStyle(color: partnerHintText),

@@ -410,6 +410,29 @@ class _MessagesScreenState extends State<MessagesScreen>
                                         InkWell(
                                           onTap: () {
                                             if (currentDownloadId == null) {
+                                              Provider.of<AppProvider>(context,
+                                                      listen: false)
+                                                  .setProgressString(
+                                                      "Canceled");
+
+                                              Future.delayed(
+                                                  Duration(milliseconds: 500),
+                                                  () {
+                                                Provider.of<AppProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .setDownloading(false);
+                                              });
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  backgroundColor: Colors.red,
+                                                  duration:
+                                                      Duration(seconds: 2),
+                                                  content:
+                                                      Text("Download Canceled"),
+                                                ),
+                                              );
                                               return;
                                             } else {
                                               Provider.of<AppProvider>(context,
