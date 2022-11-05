@@ -58,6 +58,9 @@ class AppConfig {
   static const partnerships = "$host/partnerships";
   static const supportTypes = "$host/partnerships/support-types";
   static const initializePayment = "$host/partnerships/initialize-payment";
+  static const initializeGivings = "$host/givings/initialize-payment";
+  static const givingTypes = "$host/givings/types";
+  static const givingRecordPayment = "$host/givings/record-payment";
 
   static const testimonies = "$host/testimonies";
   static const events = "$host/events";

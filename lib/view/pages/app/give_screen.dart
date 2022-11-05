@@ -2,8 +2,10 @@ import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grace_nation/core/models/giving_model.dart';
 import 'package:grace_nation/core/models/payment_model.dart';
 import 'package:grace_nation/core/providers/app_provider.dart';
+import 'package:grace_nation/core/services/giving_payment.dart';
 import 'package:grace_nation/core/services/payment.dart';
 import 'package:grace_nation/utils/constants.dart';
 import 'package:grace_nation/utils/styles.dart';
@@ -22,27 +24,53 @@ class GiveScreen extends StatefulWidget {
 class _GiveScreenState extends State<GiveScreen> {
   final NumberFormat formatter = NumberFormat("#,##0", "en_US");
   final paymentApi = PaymentApi();
+  final givingApi = GivingPayment();
   bool isConfirming = false;
-
+  List<DropDownValueModel> givingTypeList = [];
   PaymentType partnerType = PaymentType.offline;
   int? selectedAmount;
+  String selectedCurrency = "NGN";
+  List<DropDownValueModel> currencyList = [
+    DropDownValueModel(name: 'NGN', value: "NGN"),
+    DropDownValueModel(name: 'USD', value: "USD"),
+  ];
   final _amountController = TextEditingController();
-  String? selectedGivingType;
+  int? selectedGivingTypeId;
   String? memberId;
-
+  Future? future;
   bool amoutFieldTapped = false;
 
+  @override
+  void initState() {
+    future = _asyncmethodCall();
+    super.initState();
+  }
+
+  Future _asyncmethodCall() async {
+    List<GivingType> givingTypes = await givingApi.fetchGivingTypes();
+    print("giving type list length is ... ${givingTypes.length}");
+    for (int i = 0; i < givingTypes.length; i++) {
+      print("addded a giving type");
+      GivingType type = givingTypes[i];
+      DropDownValueModel model =
+          DropDownValueModel(name: type.name, value: type.id);
+      givingTypeList.add(model);
+    }
+    print("DONE with support types");
+    setState(() {});
+  }
+
   void _handleGiving(BuildContext context) async {
-    print('selected giving is $selectedGivingType');
+    print('selected giving is $selectedGivingTypeId');
     print('selected Amount is $selectedAmount');
 
-    if (selectedGivingType == null || selectedAmount == null) {
+    if (selectedGivingTypeId == null || selectedAmount == null) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertWidget(
             title: 'Incomplete Details',
-            description: selectedGivingType == null
+            description: selectedGivingTypeId == null
                 ? "Please return and select a giving type"
                 : "Please return and enter the amount you wish to give",
           );
@@ -50,19 +78,12 @@ class _GiveScreenState extends State<GiveScreen> {
       );
     } else {
       Provider.of<AppProvider>(context, listen: false)
-          .setGivingType(selectedGivingType!);
-      Provider.of<AppProvider>(context, listen: false).initPayment(
-        PaymentInit(
-          supportType: 2,
-          frequency: 'monthly',
-          paymentOption: 'transfer',
-          amount: selectedAmount!.toDouble(),
-          currency: 'NGN',
-          startDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-          endDate: DateFormat('yyyy-MM-dd')
-              .format(DateTime.now().add(Duration(days: 31))),
-        ),
-      );
+          .setGivingTypeId(selectedGivingTypeId!);
+      Provider.of<AppProvider>(context, listen: false).givingInitPayment(
+          GivingInit(
+              amount: selectedAmount!.toDouble(),
+              currency: selectedCurrency,
+              givingTypeId: selectedGivingTypeId!));
       partnerType == PaymentType.offline
           ? context.goNamed(offlineGivingRouteName)
           : context.goNamed(onlineGivingRouteName);
@@ -142,7 +163,8 @@ class _GiveScreenState extends State<GiveScreen> {
         ),
         textFieldDecoration: InputDecoration(
           hintText: hintText,
-          //     hintStyle: TextStyle(color: Colors),
+          hintStyle:
+              TextStyle(color: Theme.of(context).hintColor.withOpacity(0.75)),
           filled: true,
           fillColor: Theme.of(context).hoverColor,
           contentPadding: EdgeInsets.only(top: 6, left: 12),
@@ -180,8 +202,8 @@ class _GiveScreenState extends State<GiveScreen> {
             print(value);
             if (paymentType == false) {
               setState(() {
-                selectedGivingType = value.value;
-                print('selected giving type is .. $selectedGivingType');
+                selectedGivingTypeId = value.value;
+                print('selected giving type is .. $selectedGivingTypeId');
               });
             } else {
               setState(() {
@@ -300,7 +322,7 @@ class _GiveScreenState extends State<GiveScreen> {
                         bottom: 5,
                       ),
                       child: Text(
-                        'Thank you for choosing to give to God through our ministry, kindly select the giving and if you are a registered member, please input your giving ID. ',
+                        'Thank you for choosing to give to God through our ministry, kindly select the giving option and if you are a registered member, please input your giving ID. ',
                         style: TextStyle(
                           fontSize: 15,
                           color: Theme.of(context).primaryColorDark,
@@ -312,25 +334,130 @@ class _GiveScreenState extends State<GiveScreen> {
                 ],
               ),
               SizedBox(height: 20),
-              titleText('Select Giving Type'),
-              SizedBox(height: 10),
+
+              //
+              Row(children: [
+                Expanded(
+                  flex: 3,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: 10,
+                    ),
+                    child: Text(
+                      'Select Currency',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          color: Theme.of(context).primaryColorDark,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 22),
+                Expanded(
+                  flex: 4,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: 10,
+                    ),
+                    child: Text(
+                      'Select Giving Type',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          color: Theme.of(context).primaryColorDark,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400),
+                    ),
+                  ),
+                ),
+              ]),
+
+              //
+
               Row(
                 children: [
                   Expanded(
-                    child: dropdownField('Please Select', [
-                      DropDownValueModel(
-                          name: 'Offering and Seed',
-                          value: "offering_and_seed"),
-                      DropDownValueModel(name: 'Tithe', value: "tithe"),
-                      DropDownValueModel(
-                          name: 'TV Support', value: "tv_support"),
-                      DropDownValueModel(
-                          name: 'Building Support', value: "building_support"),
-                      DropDownValueModel(name: 'Welfare', value: "welfare"),
-                    ]),
+                    flex: 3,
+                    child: SizedBox(
+                      height: 40,
+                      child: DropDownTextField(
+                        listPadding: ListPadding(bottom: 10, top: 10),
+                        textFieldDecoration: InputDecoration(
+                          hintText: 'NGN',
+                          hintStyle: TextStyle(
+                              color: Theme.of(context)
+                                  .hintColor
+                                  .withOpacity(0.75)),
+                          filled: true,
+                          fillColor: Theme.of(context).hoverColor,
+                          contentPadding: EdgeInsets.only(top: 6, left: 12),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              style: BorderStyle.solid,
+                              color: Color.fromRGBO(173, 173, 173, 0.3),
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              style: BorderStyle.solid,
+                              color: babyBlue,
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        listTextStyle: TextStyle(color: Colors.black),
+                        enableSearch: false,
+                        dropDownIconProperty: IconProperty(
+                          icon: Icons.keyboard_arrow_down_outlined,
+                          size: 30,
+                          color: deepBlue,
+                        ),
+                        clearIconProperty: IconProperty(color: deepBlue),
+                        dropDownList: currencyList,
+                        dropDownItemCount: currencyList.length,
+                        onChanged: ((value) {
+                          if (value == null || value == "") {
+                            return;
+                          } else {
+                            print('${value.name}');
+
+                            setState(() {
+                              selectedCurrency = value.value;
+                            });
+                          }
+                        }),
+                        validator: (String? value) {
+                          if (value == null) {
+                            return 'value must not be empty';
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 22),
+                  Expanded(
+                    flex: 4,
+                    child: dropdownField(
+                      'Offering',
+                      givingTypeList,
+                    ),
                   ),
                 ],
               ),
+              // SizedBox(height: 10),
+              // titleText('Select Giving Type'),
+              // SizedBox(height: 10),
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: dropdownField(
+              //         'Please Select',
+              //         givingTypeList,
+              //       ),
+              //     ),
+              //   ],
+              // ),
               SizedBox(height: 20),
               titleText('Select Amount'),
               SizedBox(height: 10),
@@ -352,6 +479,7 @@ class _GiveScreenState extends State<GiveScreen> {
               ),
               SizedBox(height: 5),
               titleText('or'),
+              SizedBox(height: 7.5),
               titleText('Set Amount'),
               SizedBox(height: 10),
               setAmountText(),

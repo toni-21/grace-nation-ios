@@ -7,6 +7,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:grace_nation/core/models/download_info.dart';
 import 'package:grace_nation/core/models/event.dart';
+import 'package:grace_nation/core/models/giving_model.dart';
 import 'package:grace_nation/core/models/notes_model.dart';
 import 'package:grace_nation/core/models/notification.dart';
 import 'package:grace_nation/core/models/partnership.dart';
@@ -38,12 +39,13 @@ class ApDrawer {
 class AppProvider extends ChangeNotifier {
   GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
   final prefApi = PreferencesApi();
-    final notApi = NotificationsApi();
+  final notApi = NotificationsApi();
   //final AudioPlayer _audioPlayer = AudioPlayer();
   AudioHandler? _audioHandler;
   int _selectedTab = 0;
   PaymentInit? _payInit;
-  String? _givingType;
+  GivingInit? _givingPayInit;
+  int? _givingTypeId;
   int _selectedDrawer = 0;
   bool _enableNotifications = true;
   bool _isLoading = false;
@@ -60,7 +62,7 @@ class AppProvider extends ChangeNotifier {
   TextEditingController? titleEditingController;
   TextEditingController? contentEditingController;
   Preferences? _preferences;
-   List<Notifications>? _notificationList = [];
+  List<Notifications>? _notificationList = [];
 
   AudioHandler get audioHandler {
     return _audioHandler!;
@@ -123,8 +125,13 @@ class AppProvider extends ChangeNotifier {
     return _payInit!;
   }
 
-  String get givingType {
-    return _givingType!;
+  
+  GivingInit get givingInit {
+    return _givingPayInit!;
+  }
+
+  int get givingTypeId {
+    return _givingTypeId!;
   }
 
   Map<String, dynamic> get branchSearch {
@@ -155,12 +162,11 @@ class AppProvider extends ChangeNotifier {
     return _preferences!;
   }
 
-   List<Notifications> get notificationList {
+  List<Notifications> get notificationList {
     return _notificationList!;
   }
 
-
-    String get  player => '''
+  String get player => '''
     <!DOCTYPE html>
     <html>
     <head>
@@ -182,7 +188,6 @@ class AppProvider extends ChangeNotifier {
     </html>
   ''';
 
-
   void setNotifications(bool n) async {
     _enableNotifications = n;
     notifyListeners();
@@ -199,7 +204,7 @@ class AppProvider extends ChangeNotifier {
   }
 
   Future<void> setNotificationList() async {
-    _notificationList  =  await notApi.getNotifications();
+    _notificationList = await notApi.getNotifications();
     notifyListeners();
   }
 
@@ -231,8 +236,13 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setGivingType(String g) {
-    _givingType = g;
+  void givingInitPayment(GivingInit gi) {
+    _givingPayInit = gi;
+    notifyListeners();
+  }
+
+  void setGivingTypeId(int g) {
+    _givingTypeId = g;
     notifyListeners();
   }
 

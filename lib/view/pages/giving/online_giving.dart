@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:grace_nation/core/services/giving_payment.dart';
+import 'package:grace_nation/view/shared/widgets/alert_widget.dart';
 import 'package:grace_nation/view/shared/widgets/confirmation_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:grace_nation/core/providers/app_provider.dart';
 import 'package:grace_nation/core/services/payment.dart';
-import 'package:grace_nation/router/custom_page_route.dart';
 import 'package:grace_nation/utils/constants.dart';
 import 'package:grace_nation/utils/styles.dart';
-import 'package:grace_nation/view/pages/partnership/offline_partnership.dart';
 import 'package:grace_nation/view/shared/screens/drawer.dart';
 import 'package:grace_nation/view/shared/widgets/appbar.dart';
-import 'package:grace_nation/view/shared/widgets/custom_button.dart';
 import 'package:grace_nation/view/shared/widgets/failure_widget.dart';
 import 'package:grace_nation/view/shared/widgets/success_widget.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +25,9 @@ class OnlineGiving extends StatefulWidget {
 class _OnlineGiving extends State<OnlineGiving>
     with SingleTickerProviderStateMixin {
   bool _isLoading = false;
+  bool completed = false;
   final payApi = PaymentApi();
+  final givingApi = GivingPayment();
   late AnimationController controller;
   late Animation<double> scaleAnimation;
 
@@ -50,14 +49,7 @@ class _OnlineGiving extends State<OnlineGiving>
   webviewContainer({
     required BuildContext context,
     required String url,
-    required double amount,
-    required String currency,
-    required int supportType,
-    required String paymentType,
-    required String frequency,
-    required String startDate,
-    required String endDate,
-    required int payId,
+    required int givingTypeId,
   }) {
     bool hasCompletedProcessing = false;
     bool haveCallBacksBeenCalled = false;
@@ -72,39 +64,61 @@ class _OnlineGiving extends State<OnlineGiving>
         setState(() {
           _isLoading = true;
         });
-        Navigator.pop(this.context);
-        showGeneralDialog(
-          context: context,
-          barrierLabel: "Barrier",
-          barrierDismissible: true,
-          barrierColor: Colors.black.withOpacity(0.5),
-          transitionDuration: Duration(milliseconds: 200),
-          pageBuilder: (_, __, ___) {
-            return StatefulBuilder(builder: (context, setState) {
-              return Center(
-                child: SuccessWidget(
-                  title: 'Payment Successful',
-                  description: 'Thank you for giving',
-                  callback: () {
-                    context.goNamed(homeRouteName, params: {'tab': 'homepage'});
-                    Provider.of<AppProvider>(context, listen: false).goToTab(0);
-                  },
-                ),
-              );
-            });
-          },
-          transitionBuilder: (_, anim, __, child) {
-            return ScaleTransition(
-              // position: tween.animate(anim),
-              scale: CurvedAnimation(
-                  parent: controller, curve: Curves.elasticInOut),
-              child: FadeTransition(
-                opacity: anim,
-                child: child,
-              ),
-            );
-          },
+        cont.pop();
+        String recordPayment = await givingApi.recordPayment(
+          givingTypeId: givingTypeId,
+          transactionId: int.parse(id!),
         );
+
+        setState(() {
+          _isLoading = false;
+          completed = true;
+        });
+
+        if (recordPayment == "success") {
+          // showGeneralDialog(
+          //   context: savedContext,
+          //   barrierLabel: "Barrier",
+          //   barrierDismissible: true,
+          //   barrierColor: Colors.black.withOpacity(0.5),
+          //   transitionDuration: Duration(milliseconds: 200),
+          //   pageBuilder: (_, __, ___) {
+          //     return StatefulBuilder(builder: (context, setState) {
+          //       return Center(
+          //         child: SuccessWidget(
+          //           title: 'Payment Successful',
+          //           description: 'Thank you for giving',
+          //           callback: () {
+          //             savedContext
+          //                 .goNamed(homeRouteName, params: {'tab': 'homepage'});
+          //             Provider.of<AppProvider>(context, listen: false)
+          //                 .goToTab(0);
+          //           },
+          //         ),
+          //       );
+          //     });
+          //   },
+          //   transitionBuilder: (_, anim, __, child) {
+          //     return ScaleTransition(
+          //       // position: tween.animate(anim),
+          //       scale: CurvedAnimation(
+          //           parent: controller, curve: Curves.elasticInOut),
+          //       child: FadeTransition(
+          //         opacity: anim,
+          //         child: child,
+          //       ),
+          //     );
+          //   },
+          // );
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWidget(
+                  title: 'Something went wrong', description: recordPayment);
+            },
+          );
+        }
       } else {
         /// callBack.onCancelled();
         print('Transaction cancelled');
@@ -294,6 +308,45 @@ class _OnlineGiving extends State<OnlineGiving>
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (completed) {
+        showGeneralDialog(
+          context: context,
+          barrierLabel: "Barrier",
+          barrierDismissible: true,
+        
+          barrierColor: Colors.black.withOpacity(0.5),
+          transitionDuration: Duration(milliseconds: 200),
+          pageBuilder: (_, __, ___) {
+            return StatefulBuilder(builder: (context, setState) {
+              return Center(
+                child: SuccessWidget(
+                  title: 'Payment Successful',
+                  description: 'Thank you for giving',
+                  callback: () {
+                    context.goNamed(homeRouteName, params: {'tab': 'homepage'});
+                    Provider.of<AppProvider>(context, listen: false).goToTab(0);
+                  },
+                ),
+              );
+            });
+          },
+          transitionBuilder: (_, anim, __, child) {
+            return ScaleTransition(
+              // position: tween.animate(anim),
+              scale: CurvedAnimation(
+                  parent: controller, curve: Curves.elasticInOut),
+              child: FadeTransition(
+                opacity: anim,
+                child: child,
+              ),
+            );
+          },
+        );
+      }
+      ;
+    });
+
     return WillPopScope(
         onWillPop: () async {
           context.goNamed(homeRouteName, params: {'tab': 'give'});
@@ -333,35 +386,23 @@ class _OnlineGiving extends State<OnlineGiving>
                       ],
                     ),
                     GestureDetector(
-
-                        // showModalBottomSheet(
-                        //     isScrollControlled: true,
-                        //     isDismissible: false,
-                        //     backgroundColor: Colors.transparent,
-                        //     context: context,
-                        //     builder: (BuildContext context) {
-                        //       return webviewContainer(context);
-                        //     });
                         onTap: () async {
                           setState(() {
+                            completed = false;
                             _isLoading = true;
                           });
                           BuildContext mainContext = context;
-                          final payInit =
+                          final givingInit =
                               Provider.of<AppProvider>(context, listen: false)
-                                  .paymentInit;
+                                  .givingInit;
                           Provider.of<AppProvider>(context, listen: false)
                               .beginPaymentState();
                           final Map<String, dynamic> payMap =
-                              await payApi.initializeFlutterwavePayment(
-                            amount: payInit.amount,
-                            currency: payInit.currency,
-                            supportType: payInit.supportType,
-                            paymentType: 'online',
-                            frequency: payInit.frequency,
-                            startDate: payInit.startDate,
-                            endDate: payInit.endDate,
-                          );
+                              await givingApi.initializePayment(
+                                  amount: givingInit.amount,
+                                  currency: givingInit.currency,
+                                  givingTypeId: givingInit.givingTypeId);
+
                           setState(() {
                             _isLoading = false;
                           });
@@ -381,10 +422,10 @@ class _OnlineGiving extends State<OnlineGiving>
                                     child: SuccessWidget(
                                       title: 'Initialization Successful',
                                       description:
-                                          'Partnership plan was initiated successfully',
+                                          'Payment was initiated successfully',
                                       callback: () async {
                                         Map<String, dynamic> paymentResponse =
-                                            await payApi.gatewayPayment(
+                                            await givingApi.gatewayPayment(
                                                 context: context,
                                                 amount: payload['amount']
                                                     .toString(),
@@ -393,13 +434,9 @@ class _OnlineGiving extends State<OnlineGiving>
                                                 publicKey: payload[
                                                     'flutterwave_public_key'],
                                                 planId: '',
-                                                name:
-                                                    "${payload['user']['first_name']} ${payload['user']['last_name']}",
                                                 currency: payload['currency'],
-                                                phoneNumber: payload['user']
-                                                    ['phone'],
-                                                email: payload['user']
-                                                    ['email']);
+                                                email:
+                                                    'support@gracenation.com');
 
                                         if (paymentResponse['status'] ==
                                             'success') {
@@ -412,20 +449,12 @@ class _OnlineGiving extends State<OnlineGiving>
                                               context: mainContext,
                                               builder: (BuildContext context) {
                                                 return webviewContainer(
-                                                    context: context,
-                                                    url: paymentResponse['data']
-                                                        ['link'],
-                                                    amount: payInit.amount,
-                                                    currency: payInit.currency,
-                                                    supportType:
-                                                        payInit.supportType,
-                                                    paymentType: 'online',
-                                                    frequency:
-                                                        payInit.frequency,
-                                                    startDate:
-                                                        payInit.startDate,
-                                                    endDate: payInit.endDate,
-                                                    payId: payload['id']);
+                                                  context: context,
+                                                  url: paymentResponse['data']
+                                                      ['link'],
+                                                  givingTypeId:
+                                                      givingInit.givingTypeId,
+                                                );
                                               });
                                         }
                                       },
@@ -512,7 +541,8 @@ class _OnlineGiving extends State<OnlineGiving>
                                   Text(
                                     'Give with Flutterwave',
                                     style: TextStyle(
-                                        color: Theme.of(context).primaryColorDark,
+                                        color:
+                                            Theme.of(context).primaryColorDark,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16),
                                   ),
@@ -574,7 +604,8 @@ class _OnlineGiving extends State<OnlineGiving>
                                   Text(
                                     'Give with Paypal',
                                     style: TextStyle(
-                                        color: Theme.of(context).primaryColorDark,
+                                        color:
+                                            Theme.of(context).primaryColorDark,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16),
                                   ),

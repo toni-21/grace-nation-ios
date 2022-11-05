@@ -42,68 +42,68 @@ class OfflineGiving extends StatelessWidget {
     );
   }
 
-  String getGivingType(String type) {
+  String getGivingType(int type) {
     switch (type) {
-      case 'offering_and_seed':
+      case 1:
         return 'Offering/Seed';
-      case 'tithe':
+      case 2:
         return 'Tithe';
-      case 'tv_support':
+      case 3:
         return 'TV Support';
-      case 'building_support':
+      case 4:
         return 'Building Support';
-      case 'welfare':
+      case 5:
         return 'Welfare';
       default:
         return 'Offering/Seed';
     }
   }
 
-  String getBankName(String type) {
+  String getBankName(int type) {
     switch (type) {
-      case 'offering_and_seed':
+      case 1:
         return 'Diamond/Access Bank';
-      case 'tithe':
+      case 2:
         return 'Zenith Bank Nigeria';
-      case 'tv_support':
+      case 3:
         return 'UBA - Nigeria';
-      case 'building_support':
+      case 4:
         return 'Diamond/Access Bank';
-      case 'welfare':
+      case 5:
         return 'Guarantee Trust Bank';
       default:
         return 'Diamond/Access Bank';
     }
   }
 
-  String getAccountName(String type) {
+  String getAccountName(int type) {
     switch (type) {
-      case 'offering_and_seed':
+      case 1:
         return 'Mountain of Liberation Miracle Ministries';
-      case 'tithe':
+      case 2:
         return 'Chris Okafor World Outreach Ministries';
-      case 'tv_support':
+      case 3:
         return 'Mountain of Liberation Miracle Ministries';
-      case 'building_support':
+      case 4:
         return 'Mountain of Liberation Miracle Ministries';
-      case 'welfare':
+      case 5:
         return 'Greater Liberation City International Ministires';
       default:
         return 'Mountain of Liberation Miracle Ministries';
     }
   }
 
-  String getAccountNo(String type) {
+  String getAccountNo(int type) {
     switch (type) {
-      case 'offering_and_seed':
+      case 1:
         return '0049488042';
-      case 'tithe':
+      case 2:
         return '1015557088';
-      case 'tv_support':
+      case 3:
         return '1017919426';
-      case 'building_support':
+      case 4:
         return '0049488042';
-      case 'welfare':
+      case 5:
         return '0739773563';
       default:
         return '0049488042';
@@ -124,7 +124,7 @@ class OfflineGiving extends StatelessWidget {
 
   _accountDetails(
       {required BuildContext context,
-      required String type,
+      required int type,
       String? alternateBankName,
       String? alternateBankNo}) {
     return Column(
@@ -191,31 +191,6 @@ class OfflineGiving extends StatelessWidget {
               ],
             ),
             SizedBox(height: 12),
-            // Row(
-            //   children: [
-            //     Expanded(
-            //       child: keyText('Sort Code: '),
-            //     ),
-            //     Expanded(
-            //       child: Row(
-            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //         children: [
-            //           valueText(''),
-            //           GestureDetector(
-            //             onTap: () {
-            //               _copyToClipboard(context, '0049488042');
-            //             },
-            //             child: Icon(
-            //               Icons.copy,
-            //               size: 20,
-            //               color: babyBlue,
-            //             ),
-            //           )
-            //         ],
-            //       ),
-            //     ),
-            //   ],
-            // ),
           ],
         ),
         SizedBox(height: 24),
@@ -225,8 +200,8 @@ class OfflineGiving extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String givingType =
-        Provider.of<AppProvider>(context, listen: false).givingType;
+    int givingTypeId =
+        Provider.of<AppProvider>(context, listen: false).givingTypeId;
     return WillPopScope(
       onWillPop: () async {
         context.goNamed(homeRouteName, params: {'tab': 'give'});
@@ -246,7 +221,7 @@ class OfflineGiving extends StatelessWidget {
           children: [
             SizedBox(height: 12),
             Text(
-              getGivingType(givingType),
+              getGivingType(givingTypeId),
               //textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(context).primaryColorDark,
@@ -255,18 +230,18 @@ class OfflineGiving extends StatelessWidget {
               ),
             ),
             SizedBox(height: 8),
-            _accountDetails(context: context, type: givingType),
-            givingType == 'offering_and_seed'
+            _accountDetails(context: context, type: givingTypeId),
+            givingTypeId == 1
                 ? _accountDetails(
                     context: context,
-                    type: givingType,
+                    type: givingTypeId,
                     alternateBankName: 'Fidelity Bank',
                     alternateBankNo: '5080086316')
                 : Container(),
-            givingType == 'offering_and_seed'
+            givingTypeId == 1
                 ? _accountDetails(
                     context: context,
-                    type: givingType,
+                    type: givingTypeId,
                     alternateBankName: 'UBA',
                     alternateBankNo: '1022182510')
                 : Container()
