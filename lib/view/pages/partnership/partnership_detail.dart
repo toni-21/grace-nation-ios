@@ -64,6 +64,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
   Widget completedTransaction(Transactions trc) {
     String paymentDate = trc.paymentDate ?? "2022";
     double amount = trc.amount;
+    String currency = pts.currency == "NGN" ? '₦' : '\$';
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -103,8 +104,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "₦${formatter.format(amount.truncate())}",
-                //textAlign: TextAlign.center,
+                "$currency${formatter.format(amount.truncate())}",
                 style: GoogleFonts.roboto(
                   color: greenPayment,
                   fontSize: 16,
@@ -119,6 +119,9 @@ class _PartnershipDetailState extends State<PartnershipDetail>
   }
 
   Widget missedTransaction(Transactions trc) {
+    String currency = pts.currency == "NGN" ? '₦' : '\$';
+    String paymentDate = trc.paymentDate ?? "2022";
+    double amount = trc.amount;
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -141,7 +144,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
                   ),
                 ),
                 Text(
-                  '12/Jul/2022',
+                  paymentDate,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Theme.of(context).primaryColorDark,
@@ -167,9 +170,8 @@ class _PartnershipDetailState extends State<PartnershipDetail>
                   ),
                 ),
                 Text(
-                  'N50,000.00',
-                  //textAlign: TextAlign.center,
-                  style: TextStyle(
+                  "$currency${formatter.format(amount.truncate())}",
+                  style: GoogleFonts.roboto(
                     color: redPayment,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -178,7 +180,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
                 GestureDetector(
                   onTap: () {
                     showModalBottomSheet(
-                         isScrollControlled: true,
+                        isScrollControlled: true,
                         // isDismissible: true,
                         backgroundColor: Colors.transparent,
                         context: context,
@@ -218,6 +220,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
     int numberofTransations = pts.transactions!.length;
     int currentPayment = (numberofTransations * pts.amount).truncate();
     String freq = pts.frequency == 'monthly' ? 'mth' : pts.frequency;
+    String currency = pts.currency == "NGN" ? '₦' : '\$';
     double calcProgress = (currentPayment / pts.totalPayable) *
         MediaQuery.of(context).size.width /
         1.125;
@@ -243,7 +246,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
                 ),
               ),
               Spacer(),
-              Text('₦${formatter.format(pts.amount.truncate())}/$freq',
+              Text('$currency${formatter.format(pts.amount.truncate())}/$freq',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.roboto(
                     fontSize: 12,
@@ -300,13 +303,14 @@ class _PartnershipDetailState extends State<PartnershipDetail>
                       Positioned(
                         left: 16,
                         top: MediaQuery.of(context).size.height / 75,
-                        child: Text('₦${formatter.format(currentPayment)}',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.roboto(
-                              //color: white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            )),
+                        child:
+                            Text('$currency${formatter.format(currentPayment)}',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.roboto(
+                                  //color: white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                )),
                       ),
                       Positioned(
                         right: 12,
@@ -330,7 +334,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
                 ),
               ),
               Spacer(),
-              Text('₦${formatter.format(pts.totalPayable)}',
+              Text('$currency${formatter.format(pts.totalPayable)}',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.roboto(
                     color: babyBlue,
@@ -632,24 +636,6 @@ class _PartnershipDetailState extends State<PartnershipDetail>
     }
   }
 
-  // void openFile(PlatformFile file) {
-  //   OpenFilex.open(file.path!);
-  //   print('Name: ${file.name}');
-  //   print('Name: ${file.path}');
-  //   print('Name: ${file.extension}');
-  //   print('Name: ${file.size}');
-
-  //   await savePermanently();
-
-  // }
-
-  // Future<File> saveFilePermanently(PlatformFile file) async {
-  //   final appStorage = await getApplicationDocumentsDirectory();
-  //   final newFile = File('${appStorage.path}/${file.name}');
-
-  //   return File(file.path!).copy(newFile.path);
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -684,7 +670,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
                     onTap: () {
                       showModalBottomSheet(
                           isScrollControlled: true,
-                         // isDismissible: false,
+                          // isDismissible: false,
                           backgroundColor: Colors.transparent,
                           context: context,
                           builder: (BuildContext context) {

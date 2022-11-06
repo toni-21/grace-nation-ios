@@ -42,6 +42,8 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
     int currentPayment =
         (numberofTransations * widget.partnership.amount).truncate();
 
+    String currency =   widget.partnership.currency == "NGN"   ?    '₦' : '\$';
+
     String freq = widget.partnership.frequency == 'monthly'
         ? 'mth'
         : widget.partnership.frequency;
@@ -72,7 +74,7 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
               Spacer(),
               Expanded(
                 child: Text(
-                  '₦${formatter.format(widget.partnership.amount.truncate())}/$freq',
+                  '$currency${formatter.format(widget.partnership.amount.truncate())}/$freq',
                   //'# 1,000,000/Year',
                   textAlign: TextAlign.right,
                   style: GoogleFonts.roboto(
@@ -130,7 +132,7 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
                     Positioned(
                       left: 16,
                       top: MediaQuery.of(context).size.height / 75,
-                      child: Text("₦${formatter.format(currentPayment)}",
+                      child: Text("$currency${formatter.format(currentPayment)}",
                           //'#100,000',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.roboto(
@@ -159,7 +161,7 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
               ),
               Spacer(),
               Text(
-                  '₦${formatter.format(widget.partnership.totalPayable.truncate())}',
+                  '$currency${formatter.format(widget.partnership.totalPayable.truncate())}',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.roboto(
                     color: babyBlue,

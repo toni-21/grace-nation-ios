@@ -57,12 +57,6 @@ class _PartnershipPageState extends State<PartnershipPage>
     }
   }
 
-  String ngn(BuildContext context) {
-    Locale locale = Locale('en_NG');
-    var format = NumberFormat.simpleCurrency(locale: locale.toString());
-    return format.currencySymbol;
-  }
-
   @override
   void initState() {
     _getPartnerships();
@@ -257,7 +251,8 @@ class _PartnershipPageState extends State<PartnershipPage>
                               ),
                             )
                           : ListView.builder(
-                              physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                              physics: BouncingScrollPhysics(
+                                  parent: AlwaysScrollableScrollPhysics()),
                               padding: EdgeInsets.symmetric(
                                   horizontal: 24, vertical: 24),
                               // reverse: true,
@@ -407,12 +402,6 @@ class _PartnershipPageState extends State<PartnershipPage>
                                               .user
                                               .avatar!),
                                     ),
-                              // Image.asset(
-                              //   'assets/images/pastor_profile.png',
-                              //   fit: BoxFit.contain,
-                              //   scale: 5.4,
-                              // ),
-//                                color: Colors.white,
                             ),
                           ),
                         ),
