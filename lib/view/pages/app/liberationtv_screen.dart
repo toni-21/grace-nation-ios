@@ -17,6 +17,7 @@ class LiberationTVScreen extends StatefulWidget {
 class _LiberationTVScreenState extends State<LiberationTVScreen> {
   int currentIndex = 0;
   VoidCallback listener = () {};
+  bool pageLoaded = false;
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final phoneController = TextEditingController();
@@ -62,22 +63,32 @@ class _LiberationTVScreenState extends State<LiberationTVScreen> {
     }
   }
 
+  void refreshPage() async {
+    setState(() {
+      pageLoaded = true;
+    });
+    if (Platform.isAndroid) {
+      webViewController?.reload();
+    } else if (Platform.isIOS) {
+      webViewController?.loadUrl(
+          urlRequest: URLRequest(url: await webViewController?.getUrl()));
+    }
+    Future.delayed(Duration(milliseconds: 1200), () {
+      setState(() {
+        pageLoaded = false;
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    refreshPage();
     pullToRefreshController = PullToRefreshController(
-      options: PullToRefreshOptions(
-        color: Colors.blue,
-      ),
-      onRefresh: () async {
-        if (Platform.isAndroid) {
-          webViewController?.reload();
-        } else if (Platform.isIOS) {
-          webViewController?.loadUrl(
-              urlRequest: URLRequest(url: await webViewController?.getUrl()));
-        }
-      },
-    );
+        options: PullToRefreshOptions(
+          color: Colors.blue,
+        ),
+        onRefresh: refreshPage);
   }
 
   Widget prayerRequestPage(BuildContext context) {
@@ -633,86 +644,99 @@ class _LiberationTVScreenState extends State<LiberationTVScreen> {
                   Container(
                     height: 600,
                     width: MediaQuery.of(context).size.width,
-                    child: InAppWebView(
-                      //     key: webViewKey,
-                      initialOptions: options,
-                      //   initialUrlRequest: URLRequest(
-                      //   url:
-                      //       Uri.parse("https://biblia.com/plugins/embeddedbible"),
-                      // ),
-                      initialData: InAppWebViewInitialData(
-                        data: bible,
-                        // baseUrl: Uri.parse(
-                        //     'https://biblia.com/plugins/embeddedbible'),
-                        encoding: 'utf-8',
-                        mimeType: 'text/html',
-                      ),
-                      pullToRefreshController: pullToRefreshController,
-                      onWebViewCreated: (controller) {
-                        print('CREATED BIBLE!');
-                        webViewController = controller;
-                      },
-                      onLoadStart: (controller, url) {
-                        setState(() {
-                          this.url = url.toString();
-                          urlController.text = this.url;
-                        });
-                      },
-                      androidOnPermissionRequest:
-                          (controller, origin, resources) async {
-                        return PermissionRequestResponse(
-                            resources: resources,
-                            action: PermissionRequestResponseAction.GRANT);
-                      },
-                      shouldOverrideUrlLoading:
-                          (controller, navigationAction) async {
-                        var uri = navigationAction.request.url!;
+                    child: Stack(
+                      children: [
+                        InAppWebView(
+                          //     key: webViewKey,
+                          initialOptions: options,
+                          //   initialUrlRequest: URLRequest(
+                          //   url:
+                          //       Uri.parse("https://biblia.com/plugins/embeddedbible"),
+                          // ),
+                          initialData: InAppWebViewInitialData(
+                            data: bible,
+                            // baseUrl: Uri.parse(
+                            //     'https://biblia.com/plugins/embeddedbible'),
+                            encoding: 'utf-8',
+                            mimeType: 'text/html',
+                          ),
+                          pullToRefreshController: pullToRefreshController,
+                          onWebViewCreated: (controller) {
+                            print('CREATED BIBLE!');
+                            webViewController = controller;
+                          },
+                          onLoadStart: (controller, url) {
+                            setState(() {
+                              this.url = url.toString();
+                              urlController.text = this.url;
+                            });
+                          },
+                          androidOnPermissionRequest:
+                              (controller, origin, resources) async {
+                            return PermissionRequestResponse(
+                                resources: resources,
+                                action: PermissionRequestResponseAction.GRANT);
+                          },
+                          shouldOverrideUrlLoading:
+                              (controller, navigationAction) async {
+                            var uri = navigationAction.request.url!;
 
-                        if (![
-                          "http",
-                          "https",
-                          "file",
-                          "chrome",
-                          "data",
-                          "javascript",
-                          "about"
-                        ].contains(uri.scheme)) {
-                          await _launchUrl(url);
-                          // and cancel the request
-                          return NavigationActionPolicy.CANCEL;
-                        }
+                            if (![
+                              "http",
+                              "https",
+                              "file",
+                              "chrome",
+                              "data",
+                              "javascript",
+                              "about"
+                            ].contains(uri.scheme)) {
+                              await _launchUrl(url);
+                              // and cancel the request
+                              return NavigationActionPolicy.CANCEL;
+                            }
 
-                        return NavigationActionPolicy.ALLOW;
-                      },
-                      onLoadStop: (controller, url) async {
-                        pullToRefreshController.endRefreshing();
-                        setState(() {
-                          this.url = url.toString();
-                          urlController.text = this.url;
-                        });
-                      },
-                      onLoadError: (controller, url, code, message) {
-                        pullToRefreshController.endRefreshing();
-                      },
-                      onProgressChanged: (controller, progress) {
-                        if (progress == 100) {
-                          pullToRefreshController.endRefreshing();
-                        }
-                        setState(() {
-                          this.progress = progress / 100;
-                          urlController.text = this.url;
-                        });
-                      },
-                      onUpdateVisitedHistory:
-                          (controller, url, androidIsReload) {
-                        setState(() {
-                          this.url = url.toString();
-                          urlController.text = this.url;
-                        });
-                      },
-                      onConsoleMessage: (controller, consoleMessage) {
-                        print(consoleMessage);
-                      },
+                            return NavigationActionPolicy.ALLOW;
+                          },
+                          onLoadStop: (controller, url) async {
+                            pullToRefreshController.endRefreshing();
+                            setState(() {
+                              this.url = url.toString();
+                              urlController.text = this.url;
+                            });
+                          },
+                          onLoadError: (controller, url, code, message) {
+                            pullToRefreshController.endRefreshing();
+                          },
+                          onProgressChanged: (controller, progress) {
+                            if (progress == 100) {
+                              pullToRefreshController.endRefreshing();
+                            }
+                            setState(() {
+                              this.progress = progress / 100;
+                              urlController.text = this.url;
+                            });
+                          },
+                          onUpdateVisitedHistory:
+                              (controller, url, androidIsReload) {
+                            setState(() {
+                              this.url = url.toString();
+                              urlController.text = this.url;
+                            });
+                          },
+                          onConsoleMessage: (controller, consoleMessage) {
+                            print(consoleMessage);
+                          },
+                        ),
+                        pageLoaded
+                            ? Container(
+                                color: Colors.black.withOpacity(0.5),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: babyBlue,
+                                  ),
+                                ))
+                            : Container()
+                      ],
                     ),
                     // progress < 1.0
                     //     ? LinearProgressIndicator(value: progress)
@@ -731,8 +755,9 @@ class _LiberationTVScreenState extends State<LiberationTVScreen> {
   }
 }
 
-String iframeHttp = '<iframe src=\"https://iframe.viewmedia.tv?channel=011\" width=\"100%\" height=\"100%\" frameborder=\"0\" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
-                 // '<iframe src="https://iframe.viewmedia.tv?channel=011" width="100%" height="100%" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
+String iframeHttp =
+    '<iframe src=\"https://iframe.viewmedia.tv?channel=011\" width=\"100%\" height=\"100%\" frameborder=\"0\" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
+// '<iframe src="https://iframe.viewmedia.tv?channel=011" width="100%" height="100%" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
 
 String get player => '''
     <!DOCTYPE html>

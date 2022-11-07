@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:grace_nation/utils/constants.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:grace_nation/utils/styles.dart';
 import 'package:grace_nation/view/shared/screens/drawer.dart';
 import 'package:grace_nation/view/shared/widgets/appbar.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,6 +19,7 @@ class BibleScreen extends StatefulWidget {
 class _BibleScreenState extends State<BibleScreen> {
   int currentIndex = 0;
   VoidCallback listener = () {};
+  bool pageLoaded = false;
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final phoneController = TextEditingController();
@@ -63,22 +65,32 @@ class _BibleScreenState extends State<BibleScreen> {
     }
   }
 
+
+  void refreshPage() async {
+    setState(() {
+      pageLoaded = true;
+    });
+    if (Platform.isAndroid) {
+      webViewController?.reload();
+    } else if (Platform.isIOS) {
+      webViewController?.loadUrl(
+          urlRequest: URLRequest(url: await webViewController?.getUrl()));
+    }
+    Future.delayed(Duration(milliseconds: 1200), () {
+      setState(() {
+        pageLoaded = false;
+      });
+    });
+  }
   @override
   void initState() {
     super.initState();
+    refreshPage();
     pullToRefreshController = PullToRefreshController(
-      options: PullToRefreshOptions(
-        color: Colors.blue,
-      ),
-      onRefresh: () async {
-        if (Platform.isAndroid) {
-          webViewController?.reload();
-        } else if (Platform.isIOS) {
-          webViewController?.loadUrl(
-              urlRequest: URLRequest(url: await webViewController?.getUrl()));
-        }
-      },
-    );
+        options: PullToRefreshOptions(
+          color: Colors.blue,
+        ),
+        onRefresh: refreshPage);
   }
 
   @override
@@ -95,81 +107,95 @@ class _BibleScreenState extends State<BibleScreen> {
             AppBarWidget(actionScreen: false, appBar: AppBar(), title: 'Bible'),
         drawer: AppDrawer(),
         body: SafeArea(
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: InAppWebView(
-              initialOptions: options,
-              initialData: InAppWebViewInitialData(
-                data: bible,
-                encoding: 'utf-8',
-                mimeType: 'text/html',
+          child: Stack(
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: InAppWebView(
+                  initialOptions: options,
+                  initialData: InAppWebViewInitialData(
+                    data: bible,
+                    encoding: 'utf-8',
+                    mimeType: 'text/html',
+                  ),
+                  pullToRefreshController: pullToRefreshController,
+                  onWebViewCreated: (controller) {
+                    print('CREATED BIBLE!');
+                    webViewController = controller;
+                  },
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url!;
+
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      await _launchUrl(url);
+                      // and cancel the request
+                      return NavigationActionPolicy.CANCEL;
+                    }
+
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                    }
+                    setState(() {
+                      this.progress = progress / 100;
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print(consoleMessage);
+                  },
+                ),
               ),
-              pullToRefreshController: pullToRefreshController,
-              onWebViewCreated: (controller) {
-                print('CREATED BIBLE!');
-                webViewController = controller;
-              },
-              onLoadStart: (controller, url) {
-                setState(() {
-                  this.url = url.toString();
-                  urlController.text = this.url;
-                });
-              },
-              androidOnPermissionRequest:
-                  (controller, origin, resources) async {
-                return PermissionRequestResponse(
-                    resources: resources,
-                    action: PermissionRequestResponseAction.GRANT);
-              },
-              shouldOverrideUrlLoading: (controller, navigationAction) async {
-                var uri = navigationAction.request.url!;
-
-                if (![
-                  "http",
-                  "https",
-                  "file",
-                  "chrome",
-                  "data",
-                  "javascript",
-                  "about"
-                ].contains(uri.scheme)) {
-                  await _launchUrl(url);
-                  // and cancel the request
-                  return NavigationActionPolicy.CANCEL;
-                }
-
-                return NavigationActionPolicy.ALLOW;
-              },
-              onLoadStop: (controller, url) async {
-                pullToRefreshController.endRefreshing();
-                setState(() {
-                  this.url = url.toString();
-                  urlController.text = this.url;
-                });
-              },
-              onLoadError: (controller, url, code, message) {
-                pullToRefreshController.endRefreshing();
-              },
-              onProgressChanged: (controller, progress) {
-                if (progress == 100) {
-                  pullToRefreshController.endRefreshing();
-                }
-                setState(() {
-                  this.progress = progress / 100;
-                  urlController.text = this.url;
-                });
-              },
-              onUpdateVisitedHistory: (controller, url, androidIsReload) {
-                setState(() {
-                  this.url = url.toString();
-                  urlController.text = this.url;
-                });
-              },
-              onConsoleMessage: (controller, consoleMessage) {
-                print(consoleMessage);
-              },
-            ),
+              pageLoaded
+                  ? Container(
+                      color: Colors.black.withOpacity(0.5),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: babyBlue,
+                        ),
+                      ))
+                  : Container()
+            ],
           ),
         ),
       ),
