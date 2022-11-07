@@ -199,7 +199,7 @@ class PaymentApi {
       if (file.path == "" || file.path == null) {
         return "No file provided";
       }
-      print('REQEST IS ..${AppConfig.partnerships}/payments/$uuid/evidence');
+      print('REQUEST IS ..${AppConfig.partnerships}/payments/${uuid}54/evidence');
       var request = http.MultipartRequest(
         "POST",
         Uri.parse('${AppConfig.partnerships}/payments/$uuid/evidence'),

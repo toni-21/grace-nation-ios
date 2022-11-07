@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +11,7 @@ import 'package:grace_nation/utils/styles.dart';
 import 'package:grace_nation/view/shared/screens/drawer.dart';
 import 'package:grace_nation/view/shared/widgets/appbar.dart';
 import 'package:grace_nation/view/shared/widgets/custom_button.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 class BranchLocatorScreen extends StatefulWidget {
@@ -58,21 +60,17 @@ class _BranchLocatorScreenState extends State<BranchLocatorScreen> {
     String text,
     List<Country> list,
   ) {
-    return Column(children: [
-      SizedBox(height: 30),
-      Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: Theme.of(context).hoverColor,
-          borderRadius: BorderRadius.all(
-            Radius.circular(6),
-          ),
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: Theme.of(context).hoverColor,
+        borderRadius: BorderRadius.all(
+          Radius.circular(6),
         ),
-        child: DropDownTextField(
-          listTextStyle: TextStyle(
-            color: Colors.black,
-          ),
-          textFieldDecoration: InputDecoration(
+      ),
+      child: DropdownSearch<Country>(
+        dropdownDecoratorProps: DropDownDecoratorProps(
+          dropdownSearchDecoration: InputDecoration(
             hintText: text,
             hintStyle: TextStyle(
               color: Theme.of(context)
@@ -98,70 +96,78 @@ class _BranchLocatorScreenState extends State<BranchLocatorScreen> {
               borderRadius: BorderRadius.circular(6),
             ),
           ),
-          listSpace: 0,
-          dropDownItemCount: 4,
-          enableSearch: true,
-          dropDownIconProperty: IconProperty(
-            icon: Icons.keyboard_arrow_down_outlined,
+        ),
+        dropdownButtonProps: DropdownButtonProps(
+          icon: Icon(
+            Icons.keyboard_arrow_down_outlined,
             size: 30,
             color: Theme.of(context).primaryColorDark,
           ),
-          clearIconProperty: IconProperty(
-            color: Theme.of(context).primaryColorDark,
-          ),
-          dropDownList: list.map<DropDownValueModel>((Country value) {
-            return DropDownValueModel(name: value.name, value: value.id);
-          }).toList(),
-          clearOption: false,
-          onChanged: (newValue) async {
-            if (newValue == null || newValue == "") {
-              return;
-            } else {
-              setState(() {
-                isLoading = true;
-              });
-              final newStates =
-                  await locatorApi.getStates(countryId: newValue!.value);
-              setState(() {
-                print('$newValue');
-                countryValue =
-                    Country(id: newValue!.value, name: newValue!.name);
-                print('$countryValue');
-                stateValue = null;
-                states = newStates;
-                isLoading = false;
-              });
-            }
-          },
-          validator: (String? value) {
-            if (value == null) {
-              return 'value must not be empty';
-            }
-          },
         ),
+        popupProps: PopupProps.menu(
+          constraints: BoxConstraints(maxHeight: 250),
+          menuProps: MenuProps(
+            backgroundColor: Theme.of(context).hoverColor,
+          ),
+          searchFieldProps: TextFieldProps(
+            showCursor: true,
+            cursorHeight: 25,
+            cursorColor: babyBlue,
+            decoration: InputDecoration(
+              hintText: 'Search',
+              hintStyle: TextStyle(
+                color: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .color!
+                    .withOpacity(0.3),
+              ),
+              filled: true,
+              fillColor: Theme.of(context).hoverColor,
+              contentPadding: EdgeInsets.only(top: 4, left: 6),
+              border: InputBorder.none,
+            ),
+          ),
+          showSearchBox: true,
+        ),
+        // Array list of items
+        items: list.map<Country>((Country value) {
+          return Country(id: value.id, name: value.name);
+        }).toList(),
+
+        onChanged: (Country? newValue) async {
+          setState(() {
+            isLoading = true;
+          });
+          final newStates = await locatorApi.getStates(countryId: newValue!.id);
+          setState(() {
+            print('$newValue');
+            countryValue = newValue;
+            print('$countryValue');
+            stateValue = null;
+            states = newStates;
+            isLoading = false;
+          });
+        },
       ),
-    ]);
+    );
   }
 
   Widget stateDropdown(
     String text,
     List<States> list,
   ) {
-    return SafeArea(
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: Theme.of(context).hoverColor,
-          borderRadius: BorderRadius.all(
-            Radius.circular(6),
-          ),
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: Theme.of(context).hoverColor,
+        borderRadius: BorderRadius.all(
+          Radius.circular(6),
         ),
-        child: DropDownTextField(
-          listTextStyle: TextStyle(
-            color: Colors.black,
-          ),
-          clearOption: false,
-          textFieldDecoration: InputDecoration(
+      ),
+      child: DropdownSearch<States>(
+        dropdownDecoratorProps: DropDownDecoratorProps(
+          dropdownSearchDecoration: InputDecoration(
             hintText: text,
             hintStyle: TextStyle(
               color: Theme.of(context)
@@ -187,37 +193,56 @@ class _BranchLocatorScreenState extends State<BranchLocatorScreen> {
               borderRadius: BorderRadius.circular(6),
             ),
           ),
-          listSpace: 0,
-          enableSearch: true,
-          dropDownItemCount: 4,
-          dropDownIconProperty: IconProperty(
-            icon: Icons.keyboard_arrow_down_outlined,
+        ),
+        dropdownButtonProps: DropdownButtonProps(
+          icon: Icon(
+            Icons.keyboard_arrow_down_outlined,
             size: 30,
             color: Theme.of(context).primaryColorDark,
           ),
-          clearIconProperty: IconProperty(
-            color: Theme.of(context).primaryColorDark,
-          ),
-          dropDownList: list.map<DropDownValueModel>((States value) {
-            return DropDownValueModel(name: value.name, value: value.id);
-          }).toList(),
-          onChanged: (newValue) async {
-            if (newValue == null || newValue == "") {
-              return;
-            } else {
-              setState(() {
-                print('$newValue');
-                stateValue = States(id: newValue!.value, name: newValue!.name);
-                print('$stateValue');
-              });
-            }
-          },
-          validator: (String? value) {
-            if (value == null) {
-              return 'value must not be empty';
-            }
-          },
         ),
+        popupProps: PopupProps.menu(
+          constraints: BoxConstraints(maxHeight: 250),
+          menuProps: MenuProps(
+            backgroundColor: Theme.of(context).hoverColor,
+          ),
+          searchFieldProps: TextFieldProps(
+            showCursor: true,
+            cursorHeight: 25,
+            cursorColor: babyBlue,
+            decoration: InputDecoration(
+              hintText: 'Search',
+              hintStyle: TextStyle(
+                color: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .color!
+                    .withOpacity(0.3),
+              ),
+              filled: true,
+              fillColor: Theme.of(context).hoverColor,
+              contentPadding: EdgeInsets.only(top: 4, left: 6),
+              border: InputBorder.none,
+            ),
+          ),
+          showSearchBox: true,
+        ),
+        // Array list of items
+        items: list.map<States>((States value) {
+          return States(id: value.id, name: value.name);
+        }).toList(),
+
+        onChanged: (States? newValue) async {
+          if (newValue == null || newValue == "") {
+            return;
+          } else {
+            setState(() {
+              print('$newValue');
+              stateValue = States(id: newValue.id, name: newValue.name);
+              print('$stateValue');
+            });
+          }
+        },
       ),
     );
   }
@@ -231,7 +256,6 @@ class _BranchLocatorScreenState extends State<BranchLocatorScreen> {
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
-        resizeToAvoidBottomInset: true,
         appBar: AppBarWidget(
           actionScreen: false,
           appBar: AppBar(),
@@ -271,15 +295,16 @@ class _BranchLocatorScreenState extends State<BranchLocatorScreen> {
                   }
                   return SingleChildScrollView(
                     padding: EdgeInsets.symmetric(
-                      //vertical: 12,
+                   //   vertical: 24,
                       horizontal: 36,
                     ),
-                    physics: AlwaysScrollableScrollPhysics(),
+                    physics: BouncingScrollPhysics(),
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                             SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -348,7 +373,7 @@ class _BranchLocatorScreenState extends State<BranchLocatorScreen> {
                               context.goNamed(branchResultsRouteName);
                             },
                           ),
-                          SizedBox(height: 75),
+                          SizedBox(height: 30),
                         ],
                       ),
                     ),

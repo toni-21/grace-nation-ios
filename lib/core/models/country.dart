@@ -13,4 +13,11 @@ class Country {
         sortname: json['sortname'],
         phoneCode: json['phone_code'],
       );
+
+  bool isEqual(Country model) {
+    return this.id == model.id;
+  }
+
+  @override
+  String toString() => name;
 }

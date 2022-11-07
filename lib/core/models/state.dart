@@ -13,4 +13,11 @@ class States {
         country:
             Country(id: json['country']['id'], name: json['country']['name']),
       );
+
+  bool isEqual(States model) {
+    return this.id == model.id;
+  }
+
+  @override
+  String toString() => name;
 }

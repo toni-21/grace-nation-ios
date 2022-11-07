@@ -185,7 +185,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
                         backgroundColor: Colors.transparent,
                         context: context,
                         builder: (BuildContext context) {
-                          return addRecord(context);
+                          return addRecord(context, trc.uuid);
                         });
                   },
                   child: Container(
@@ -422,7 +422,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
     );
   }
 
-  addRecord(context) {
+  addRecord(BuildContext context, String id) {
     return Container(
       height: 284,
       decoration: BoxDecoration(
@@ -549,7 +549,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
                       text: 'Submit',
                       onTap: () {
                         if (document == null) return;
-                        _submitForm(document!);
+                        _submitForm(document!, id);
                       }),
                   SizedBox(height: 36),
                 ],
@@ -561,13 +561,11 @@ class _PartnershipDetailState extends State<PartnershipDetail>
     );
   }
 
-  void _submitForm(PlatformFile file) async {
+  void _submitForm(PlatformFile file, String id) async {
     setState(() {
       _isLoading = true;
     });
-
-    String response =
-        await paymentApi.addPaymentEvidence(file: file, uuid: pts.uuid);
+    String response = await paymentApi.addPaymentEvidence(file: file, uuid: id);
     setState(() {
       _isLoading = false;
     });
@@ -668,13 +666,17 @@ class _PartnershipDetailState extends State<PartnershipDetail>
                   ),
                   GestureDetector(
                     onTap: () {
+                      String transacId = (pts.transactions == null ||
+                              pts.transactions!.isEmpty)
+                          ? pts.uuid
+                          : pts.transactions![0].uuid;
                       showModalBottomSheet(
                           isScrollControlled: true,
                           // isDismissible: false,
                           backgroundColor: Colors.transparent,
                           context: context,
                           builder: (BuildContext context) {
-                            return addRecord(context);
+                            return addRecord(context, transacId);
                           });
                     },
                     child: Container(
