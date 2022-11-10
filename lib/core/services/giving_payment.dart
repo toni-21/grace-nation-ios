@@ -39,7 +39,9 @@ class GivingPayment {
       debugPrint(response.body);
       final decodedResponse = json.decode(response.body);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          response.statusCode == 202) {
         debugPrint("GIVINGS SINITIALIZE SUCCESSFUL");
         map = {'status': 'success', 'data': decodedResponse['data']};
         return map;

@@ -6,6 +6,7 @@ class Preferences {
   String? supportNumber;
   String? whatsappNumber;
   String? flutterwaveKey;
+  String? paystackKey;
   String? tiktokLink;
   String? facebookLink;
   String? youtubeLink;
@@ -17,6 +18,7 @@ class Preferences {
     this.supportNumber,
     this.whatsappNumber,
     this.flutterwaveKey,
+    this.paystackKey,
     this.facebookLink,
     this.instagramLink,
     this.tiktokLink,
@@ -35,6 +37,7 @@ class Preferences {
       supportNumber: json["support_number"],
       whatsappNumber: json["whatsapp_number"],
       flutterwaveKey: json["public_keys"]["ravepay"],
+      paystackKey: json["public_keys"]["paystack"],
       tiktokLink: json["social_links"]["tiktok"],
       youtubeLink: json["social_links"]["youtube"],
       facebookLink: json["social_links"]["facebook"],
