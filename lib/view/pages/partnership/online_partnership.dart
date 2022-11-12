@@ -505,57 +505,6 @@ class _OnlinePartnershipState extends State<OnlinePartnership>
                       ),
                     )),
                 SizedBox(height: 25),
-                InkWell(
-                    onTap: () {},
-                    child: Container(
-                      margin: EdgeInsets.only(left: 18, right: 18),
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).hoverColor,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(20),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  image: AssetImage('assets/images/paypal.png'),
-                                  fit: BoxFit.contain),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(4),
-                              ),
-                            ),
-                            height: 32,
-                            width: 32,
-                          ),
-                          SizedBox(width: 15),
-                          Flexible(
-                              child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Give with Paypal',
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColorDark,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
-                              ),
-
-                              // SizedBox(height: 5),
-                              Text(
-                                'Seamless payments using paypal',
-                                style: TextStyle(
-                                    color: Color.fromRGBO(123, 127, 158, 1),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12),
-                              ),
-                            ],
-                          ))
-                        ],
-                      ),
-                    ))
               ],
             ),
             _isLoading

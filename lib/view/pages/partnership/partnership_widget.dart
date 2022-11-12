@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grace_nation/core/models/partnership.dart';
+import 'package:grace_nation/utils/constants.dart';
 import 'package:grace_nation/utils/styles.dart';
 import 'package:intl/intl.dart';
 
@@ -26,9 +27,12 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
     Future.delayed(Duration(milliseconds: 5), () {
       setState(() {
         calcProgress = ((widget.partnership.transactions!.length *
-                        widget.partnership.amount)
-                    .truncate() /
-                widget.partnership.totalPayable) *
+                                widget.partnership.amount)
+                            .truncate() /
+                        widget.partnership.totalPayable ==
+                    0
+                ? 1
+                : widget.partnership.totalPayable) *
             MediaQuery.of(context).size.width /
             1.125;
       });
@@ -42,7 +46,7 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
     int currentPayment =
         (numberofTransations * widget.partnership.amount).truncate();
 
-    String currency =   widget.partnership.currency == "NGN"   ?    '₦' : '\$';
+    String currency = widget.partnership.currency == "NGN" ? '₦' : '\$';
 
     String freq = widget.partnership.frequency == 'monthly'
         ? 'mth'
@@ -51,6 +55,8 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
         ? 'assets/images/partner-crown-gold.svg'
         : 'assets/images/partner-crown-ash.svg';
 
+    DateTime time = DateTime.parse(widget.partnership.endDate);
+    String date = DateFormat.yMd().format(time);
     return Container(
       padding: EdgeInsets.all(12),
       margin: EdgeInsets.only(bottom: 20),
@@ -132,14 +138,15 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
                     Positioned(
                       left: 16,
                       top: MediaQuery.of(context).size.height / 75,
-                      child: Text("$currency${formatter.format(currentPayment)}",
-                          //'#100,000',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.roboto(
-                            //color: white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          )),
+                      child:
+                          Text("$currency${formatter.format(currentPayment)}",
+                              //'#100,000',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.roboto(
+                                //color: white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              )),
                     ),
                     Positioned(
                         right: 12, top: 6, child: SvgPicture.asset(image))
@@ -152,7 +159,7 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
             children: [
               Text(
                 // 'End Date: 31st Dec 2022',
-                'End Date: ${widget.partnership.endDate}',
+                'End Date: ${date}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,

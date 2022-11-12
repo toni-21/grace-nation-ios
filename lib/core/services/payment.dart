@@ -181,10 +181,50 @@ class PaymentApi {
     }
   }
 
-  Future<String> addPaymentEvidence({
-    required PlatformFile file,
-    required String uuid
+  Future<Map<String, dynamic>> paystackGateway({
+    required BuildContext context,
+    required String amount,
+    required String publicKey,
+    required String email,
   }) async {
+    var client = http.Client();
+    Map<String, dynamic> map = {};
+
+    Map<String, dynamic> body = {
+      "amount": amount,
+      "email": email,
+    };
+
+    Map<String, String> requestHeaders = {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Authorization": "Bearer $publicKey"
+    };
+
+    String url = "https://api.paystack.co/transaction/initialize";
+    final uri = Uri.parse(url);
+    print('Bearer $publicKey');
+    try {
+      final response = await client.post(uri,
+          body: json.encode(body), headers: requestHeaders);
+      debugPrint(response.body);
+      final decodedResponse = json.decode(response.body);
+      map = decodedResponse;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        debugPrint("PAYSTACK REQUEST SUCCESSFUL");
+        return map;
+      } else {
+        debugPrint("PAYSTACK REQUEST REQUEST FAILED");
+        String message = decodedResponse["message"];
+        return map;
+      }
+    } catch (exception) {
+      return Future.error(exception.toString());
+    }
+  }
+
+  Future<String> addPaymentEvidence(
+      {required PlatformFile file, required String uuid}) async {
     final prefs = await SharedPreferences.getInstance();
     String accessToken = prefs.getString('accessToken') ?? "";
     // String uuids = prefs.getString('uuid')!;
@@ -199,7 +239,8 @@ class PaymentApi {
       if (file.path == "" || file.path == null) {
         return "No file provided";
       }
-      print('REQUEST IS ..${AppConfig.partnerships}/payments/${uuid}54/evidence');
+      print(
+          'REQUEST IS ..${AppConfig.partnerships}/payments/${uuid}54/evidence');
       var request = http.MultipartRequest(
         "POST",
         Uri.parse('${AppConfig.partnerships}/payments/$uuid/evidence'),

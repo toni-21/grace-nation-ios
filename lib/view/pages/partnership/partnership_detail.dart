@@ -221,9 +221,13 @@ class _PartnershipDetailState extends State<PartnershipDetail>
     int currentPayment = (numberofTransations * pts.amount).truncate();
     String freq = pts.frequency == 'monthly' ? 'mth' : pts.frequency;
     String currency = pts.currency == "NGN" ? '₦' : '\$';
-    double calcProgress = (currentPayment / pts.totalPayable) *
-        MediaQuery.of(context).size.width /
-        1.125;
+    double calcProgress =
+        (currentPayment / pts.totalPayable == 0 ? 1 : pts.totalPayable) *
+            MediaQuery.of(context).size.width /
+            1.125;
+
+    DateTime time = DateTime.parse(pts.endDate);
+    String date = DateFormat.yMd().format(time);
     String image = currentPayment == pts.totalPayable
         ? 'assets/images/partner-crown-gold.svg'
         : 'assets/images/partner-crown-ash.svg';
@@ -326,7 +330,7 @@ class _PartnershipDetailState extends State<PartnershipDetail>
           Row(
             children: [
               Text(
-                'End Date: ${pts.endDate}',
+                'End Date: ${date}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
