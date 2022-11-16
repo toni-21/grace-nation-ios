@@ -32,6 +32,7 @@ class _SecurityState extends State<Security>
   bool newObscureText = true;
   bool confirmObscureText = false;
   late User _user;
+  bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -51,6 +52,9 @@ class _SecurityState extends State<Security>
   }
 
   void _submitForm(BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
     FocusScopeNode currentFocus = FocusScope.of(context);
 
     if (!currentFocus.hasPrimaryFocus) {
@@ -67,7 +71,9 @@ class _SecurityState extends State<Security>
         lastName: _user.lastName,
         firstName: _user.firstName,
       );
-
+      setState(() {
+        _isLoading = false;
+      });
       if (response == 'success') {
         showGeneralDialog(
           context: context,
@@ -80,7 +86,8 @@ class _SecurityState extends State<Security>
               return Center(
                   child: SuccessWidget(
                       title: 'Update Successful',
-                      description: 'Your password has been changed successfully',
+                      description:
+                          'Your password has been changed successfully',
                       callback: () {
                         context.goNamed(profileRouteName);
                       }));
@@ -214,91 +221,105 @@ class _SecurityState extends State<Security>
         appBar: AppBar(),
       ),
       body: SafeArea(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.only(left: 24, right: 24, top: 24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Change Password',
-                  style: TextStyle(
-                    color: deepBlue,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                ),
-                SizedBox(height: 24),
-                textField(
-                    text: 'Enter Old Password',
-                    icon: 'assets/icons/prefix-padlock.svg',
-                    controller: oldPasswordController,
-                    obscureText: false,
-                    suffix: false),
-                SizedBox(height: 24),
-                textField(
-                    text: 'Enter New Password',
-                    icon: 'assets/icons/prefix-padlock.svg',
-                    controller: newPasswordController,
-                    obscureText: newObscureText,
-                    suffix: true),
-                SizedBox(height: 24),
-                textField(
-                    text: 'Confirm New Password',
-                    icon: 'assets/icons/prefix-padlock.svg',
-                    controller: confirmPasswordController,
-                    obscureText: confirmObscureText,
-                    suffix: true),
-                SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+        child: Stack(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.only(left: 24, right: 24, top: 24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Checkbox(
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        activeColor: babyBlue,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5)),
-                        side: BorderSide(color: babyBlue),
-                        value: _confirm,
-                        onChanged: (value) {
-                          setState(() {
-                            _confirm = value!;
-                          });
-                        }),
-                    Expanded(
-                      child: Text(
-                        'Confirm Password Change',
-                        softWrap: true,
-                        style: TextStyle(
-                          color: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .color!
-                              .withOpacity(0.5),
-                          fontSize: 12,
-                        ),
+                    Text(
+                      'Change Password',
+                      style: TextStyle(
+                        color: deepBlue,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
                       ),
                     ),
+                    SizedBox(height: 24),
+                    textField(
+                        text: 'Enter Old Password',
+                        icon: 'assets/icons/prefix-padlock.svg',
+                        controller: oldPasswordController,
+                        obscureText: false,
+                        suffix: false),
+                    SizedBox(height: 24),
+                    textField(
+                        text: 'Enter New Password',
+                        icon: 'assets/icons/prefix-padlock.svg',
+                        controller: newPasswordController,
+                        obscureText: newObscureText,
+                        suffix: true),
+                    SizedBox(height: 24),
+                    textField(
+                        text: 'Confirm New Password',
+                        icon: 'assets/icons/prefix-padlock.svg',
+                        controller: confirmPasswordController,
+                        obscureText: confirmObscureText,
+                        suffix: true),
+                    SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Checkbox(
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                            activeColor: babyBlue,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5)),
+                            side: BorderSide(color: babyBlue),
+                            value: _confirm,
+                            onChanged: (value) {
+                              setState(() {
+                                _confirm = value!;
+                              });
+                            }),
+                        Expanded(
+                          child: Text(
+                            'Confirm Password Change',
+                            softWrap: true,
+                            style: TextStyle(
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .color!
+                                  .withOpacity(0.5),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 24),
+                    Padding(
+                        padding: EdgeInsets.zero,
+                        child: CustomButton(
+                            text: 'Change Password',
+                            onTap: () {
+                              if (_confirm == false) {
+                                return;
+                              } else {
+                                _submitForm(context);
+                              }
+                            }))
                   ],
                 ),
-                SizedBox(height: 24),
-                Padding(
-                    padding: EdgeInsets.zero,
-                    child: CustomButton(
-                        text: 'Change Password',
-                        onTap: () {
-                          if (_confirm == false) {
-                            return;
-                          } else {
-                            _submitForm(context);
-                          }
-                        }))
-              ],
+              ),
             ),
-          ),
+            _isLoading
+                ? Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: babyBlue,
+                      ),
+                    ))
+                : Container()
+          ],
         ),
       ),
     );
