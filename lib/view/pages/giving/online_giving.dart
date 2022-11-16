@@ -644,7 +644,7 @@ class _OnlineGiving extends State<OnlineGiving>
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
                                       image: AssetImage(
-                                          'assets/images/paypal.png'),
+                                          'assets/images/paystack.png'),
                                       fit: BoxFit.contain),
                                   borderRadius: BorderRadius.all(
                                     Radius.circular(4),
@@ -669,7 +669,7 @@ class _OnlineGiving extends State<OnlineGiving>
 
                                   // SizedBox(height: 5),
                                   Text(
-                                    'Seamless payments using Paystack',
+                                    'Make  payment using your debit card',
                                     style: TextStyle(
                                         color: Color.fromRGBO(123, 127, 158, 1),
                                         fontWeight: FontWeight.bold,
