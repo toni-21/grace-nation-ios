@@ -26,6 +26,7 @@ class _GiveScreenState extends State<GiveScreen> {
   final paymentApi = PaymentApi();
   final givingApi = GivingPayment();
   bool isConfirming = false;
+  bool _isLoading = false;
   List<DropDownValueModel> givingTypeList = [];
   PaymentType partnerType = PaymentType.offline;
   int? selectedAmount;
@@ -50,6 +51,9 @@ class _GiveScreenState extends State<GiveScreen> {
   }
 
   Future _asyncmethodCall() async {
+    setState(() {
+      _isLoading = true;
+    });
     List<GivingType> givingTypes = await givingApi.fetchGivingTypes();
     print("giving type list length is ... ${givingTypes.length}");
     for (int i = 0; i < givingTypes.length; i++) {
@@ -60,7 +64,9 @@ class _GiveScreenState extends State<GiveScreen> {
       givingTypeList.add(model);
     }
     print("DONE with support types");
-    setState(() {});
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void _handleGiving(BuildContext context) async {
@@ -200,9 +206,15 @@ class _GiveScreenState extends State<GiveScreen> {
         dropDownItemCount: list.length,
         onChanged: ((value) {
           if (value == null || value == "") {
-            setState(() {
-              selectedGivingTypeId = 0;
-            });
+            if (paymentType = false) {
+              setState(() {
+                selectedGivingTypeId = 0;
+              });
+            } else {
+              setState(() {
+                partnerType = PaymentType.offline;
+              });
+            }
             return;
           } else {
             print(value);
@@ -213,7 +225,7 @@ class _GiveScreenState extends State<GiveScreen> {
               });
             } else {
               setState(() {
-                value.toString() == 'DropDownValueModel(Online Payment, online)'
+                partnerType == PaymentType.offline
                     ? partnerType = PaymentType.online
                     : partnerType = PaymentType.offline;
               });
@@ -316,262 +328,274 @@ class _GiveScreenState extends State<GiveScreen> {
           padding: EdgeInsets.symmetric(
             horizontal: xPadding, //vertical: xPadding
           ),
-          child: ListView(
-            physics: BouncingScrollPhysics(),
-            children: [
-              SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        bottom: 5,
-                      ),
-                      child: Text(
-                        'Thank you for choosing to give to God through our ministry, kindly select the giving option and if you are a registered member, please input your giving ID. ',
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Theme.of(context).primaryColorDark,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
+          child: _isLoading
+              ? Center(
+                  child: CircularProgressIndicator(
+                    color: babyBlue,
                   ),
-                ],
-              ),
-              SizedBox(height: 20),
-
-              //
-              Row(children: [
-                Expanded(
-                  flex: 3,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      bottom: 10,
-                    ),
-                    child: Text(
-                      'Select Currency',
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          color: Theme.of(context).primaryColorDark,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 22),
-                Expanded(
-                  flex: 4,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      bottom: 10,
-                    ),
-                    child: Text(
-                      'Select Giving Type',
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          color: Theme.of(context).primaryColorDark,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400),
-                    ),
-                  ),
-                ),
-              ]),
-
-              //
-
-              Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: SizedBox(
-                      height: 40,
-                      child: DropDownTextField(
-                        listPadding: ListPadding(bottom: 10, top: 10),
-                        textFieldDecoration: InputDecoration(
-                          hintText: 'NGN',
-                          hintStyle: TextStyle(
-                              color: Theme.of(context)
-                                  .hintColor
-                                  .withOpacity(0.75)),
-                          filled: true,
-                          fillColor: Theme.of(context).hoverColor,
-                          contentPadding: EdgeInsets.only(top: 6, left: 12),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              style: BorderStyle.solid,
-                              color: Color.fromRGBO(173, 173, 173, 0.3),
+                )
+              : ListView(
+                  physics: BouncingScrollPhysics(),
+                  children: [
+                    SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              bottom: 5,
                             ),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              style: BorderStyle.solid,
-                              color: babyBlue,
+                            child: Text(
+                              'Thank you for choosing to give to God through our ministry, kindly select the giving option and if you are a registered member, please input your giving ID. ',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Theme.of(context).primaryColorDark,
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(6),
                           ),
                         ),
-                        listTextStyle: TextStyle(color: Colors.black),
-                        dropDownIconProperty: IconProperty(
-                          icon: Icons.keyboard_arrow_down_outlined,
-                          size: 30,
-                          color: deepBlue,
-                        ),
-                        clearIconProperty: IconProperty(color: deepBlue),
-                        dropDownList: currencyList,
-                        dropDownItemCount: currencyList.length,
-                        onChanged: ((value) {
-                          if (value == null || value == "") {
-                            setState(() {
-                              selectedCurrency = "NGN";
-                            });
-                            print("value is is ${value.toString()}");
-                            return;
-                          } else {
-                            print('${value.name}');
-
-                            setState(() {
-                              selectedCurrency = value.value;
-                            });
-                          }
-                        }),
-                        validator: (String? value) {
-                          if (value == null) {
-                            return 'value must not be empty';
-                          }
-                        },
-                      ),
+                      ],
                     ),
-                  ),
-                  SizedBox(width: 22),
-                  Expanded(
-                    flex: 4,
-                    child: dropdownField(
-                      'Offering',
-                      givingTypeList,
-                    ),
-                  ),
-                ],
-              ),
-              // SizedBox(height: 10),
-              // titleText('Select Giving Type'),
-              // SizedBox(height: 10),
-              // Row(
-              //   children: [
-              //     Expanded(
-              //       child: dropdownField(
-              //         'Please Select',
-              //         givingTypeList,
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              SizedBox(height: 20),
-              titleText('Select Amount'),
-              SizedBox(height: 10),
-              SizedBox(
-                  height: 36,
-                  child: ListView.builder(
-                      physics: BouncingScrollPhysics(),
-                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: ngnAmounts.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        int amt = selectedCurrency == "NGN"
-                            ? ngnAmounts[index]
-                            : usdAmounts[index];
-                        String ngn = selectedCurrency == "NGN" ? "₦" : "\$";
+                    SizedBox(height: 20),
 
-                        return amountItem(amt, ngn);
-                      })),
-              SizedBox(height: 5),
-              titleText('or'),
-              SizedBox(height: 7.5),
-              titleText('Set Amount'),
-              SizedBox(height: 10),
-              setAmountText(),
-              SizedBox(height: 20),
-              titleText('Select Payment Option'),
-              SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: dropdownField(
-                        "Offline Payment",
-                        [
-                          DropDownValueModel(
-                              name: 'Offline Payment', value: "offline"),
-                          DropDownValueModel(
-                              name: 'Online Payment', value: "online")
-                        ],
-                        true),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              titleText('Giving ID', true),
-              SizedBox(height: 10),
-              Stack(
-                children: [
-                  Row(
-                    children: [
+                    //
+                    Row(children: [
                       Expanded(
-                        child: SizedBox(
-                          height: 40,
-                          child: TextField(
-                            keyboardType: TextInputType.visiblePassword,
-                            decoration: InputDecoration(
-                              hintText: "Please input giving id",
-                              hintStyle: TextStyle(color: partnerHintText),
-                              filled: true,
-                              fillColor: Theme.of(context).hoverColor,
-                              contentPadding: EdgeInsets.only(top: 6, left: 12),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  style: BorderStyle.solid,
-                                  color: Color.fromRGBO(173, 173, 173, 0.3),
-                                ),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  style: BorderStyle.solid,
-                                  color: babyBlue,
-                                ),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            ),
+                        flex: 3,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            bottom: 10,
+                          ),
+                          child: Text(
+                            'Select Currency',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColorDark,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  isConfirming
-                      ? Positioned(
-                          top: 10,
-                          right: 15,
-                          child: Container(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: babyBlue,
+                      SizedBox(width: 22),
+                      Expanded(
+                        flex: 4,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            bottom: 10,
+                          ),
+                          child: Text(
+                            'Select Giving Type',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColorDark,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400),
+                          ),
+                        ),
+                      ),
+                    ]),
+
+                    //
+
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: SizedBox(
+                            height: 40,
+                            child: DropDownTextField(
+                              listPadding: ListPadding(bottom: 10, top: 10),
+                              textFieldDecoration: InputDecoration(
+                                hintText: 'NGN',
+                                hintStyle: TextStyle(
+                                    color: Theme.of(context)
+                                        .hintColor
+                                        .withOpacity(0.75)),
+                                filled: true,
+                                fillColor: Theme.of(context).hoverColor,
+                                contentPadding:
+                                    EdgeInsets.only(top: 6, left: 12),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    style: BorderStyle.solid,
+                                    color: Color.fromRGBO(173, 173, 173, 0.3),
+                                  ),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    style: BorderStyle.solid,
+                                    color: babyBlue,
+                                  ),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              listTextStyle: TextStyle(color: Colors.black),
+                              dropDownIconProperty: IconProperty(
+                                icon: Icons.keyboard_arrow_down_outlined,
+                                size: 30,
+                                color: deepBlue,
+                              ),
+                              clearIconProperty: IconProperty(color: deepBlue),
+                              dropDownList: currencyList,
+                              dropDownItemCount: currencyList.length,
+                              onChanged: ((value) {
+                                if (value == null || value == "") {
+                                  setState(() {
+                                    selectedCurrency = "NGN";
+                                  });
+                                  print("value is is ${value.toString()}");
+                                  return;
+                                } else {
+                                  print('${value.name}');
+
+                                  setState(() {
+                                    selectedCurrency = value.value;
+                                  });
+                                }
+                              }),
+                              validator: (String? value) {
+                                if (value == null) {
+                                  return 'value must not be empty';
+                                }
+                              },
                             ),
                           ),
-                        )
-                      : Container(),
-                ],
-              ),
-              SizedBox(height: 30),
-              CustomButton(
-                  text: 'Continue',
-                  onTap: () {
-                    _handleGiving(context);
-                  }),
-              SizedBox(height: 45),
-            ],
-          ),
+                        ),
+                        SizedBox(width: 22),
+                        Expanded(
+                          flex: 4,
+                          child: dropdownField(
+                            'Offering',
+                            givingTypeList,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // SizedBox(height: 10),
+                    // titleText('Select Giving Type'),
+                    // SizedBox(height: 10),
+                    // Row(
+                    //   children: [
+                    //     Expanded(
+                    //       child: dropdownField(
+                    //         'Please Select',
+                    //         givingTypeList,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    SizedBox(height: 20),
+                    titleText('Select Amount'),
+                    SizedBox(height: 10),
+                    SizedBox(
+                        height: 36,
+                        child: ListView.builder(
+                            physics: BouncingScrollPhysics(),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 5),
+                            scrollDirection: Axis.horizontal,
+                            itemCount: ngnAmounts.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              int amt = selectedCurrency == "NGN"
+                                  ? ngnAmounts[index]
+                                  : usdAmounts[index];
+                              String ngn =
+                                  selectedCurrency == "NGN" ? "₦" : "\$";
+
+                              return amountItem(amt, ngn);
+                            })),
+                    SizedBox(height: 5),
+                    titleText('or'),
+                    SizedBox(height: 7.5),
+                    titleText('Set Amount'),
+                    SizedBox(height: 10),
+                    setAmountText(),
+                    SizedBox(height: 20),
+                    titleText('Select Payment Option'),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: dropdownField(
+                              "Offline Payment",
+                              [
+                                DropDownValueModel(
+                                    name: 'Offline Payment', value: "offline"),
+                                DropDownValueModel(
+                                    name: 'Online Payment', value: "online")
+                              ],
+                              true),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    titleText('Giving ID', true),
+                    SizedBox(height: 10),
+                    Stack(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 40,
+                                child: TextField(
+                                  keyboardType: TextInputType.visiblePassword,
+                                  decoration: InputDecoration(
+                                    hintText: "Please input giving id",
+                                    hintStyle:
+                                        TextStyle(color: partnerHintText),
+                                    filled: true,
+                                    fillColor: Theme.of(context).hoverColor,
+                                    contentPadding:
+                                        EdgeInsets.only(top: 6, left: 12),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        style: BorderStyle.solid,
+                                        color:
+                                            Color.fromRGBO(173, 173, 173, 0.3),
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        style: BorderStyle.solid,
+                                        color: babyBlue,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        isConfirming
+                            ? Positioned(
+                                top: 10,
+                                right: 15,
+                                child: Container(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: babyBlue,
+                                  ),
+                                ),
+                              )
+                            : Container(),
+                      ],
+                    ),
+                    SizedBox(height: 30),
+                    CustomButton(
+                        text: 'Continue',
+                        onTap: () {
+                          _handleGiving(context);
+                        }),
+                    SizedBox(height: 45),
+                  ],
+                ),
         ),
       ),
     );

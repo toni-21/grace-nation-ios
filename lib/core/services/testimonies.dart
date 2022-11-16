@@ -92,7 +92,7 @@ class TestimoniesApi {
 
       if (image != null) {
         var imageFile = await http.MultipartFile.fromPath(
-          "payment_evidence",
+          "image",
           image.path!,
           filename: image.name,
         );
@@ -101,7 +101,7 @@ class TestimoniesApi {
       }
       if (video != null) {
         var videoFile = await http.MultipartFile.fromPath(
-          "payment_evidence",
+          "video",
           video.path!,
           filename: video.name,
         );
@@ -116,11 +116,11 @@ class TestimoniesApi {
       final responseData = json.decode(responsed.body);
       print(responseData);
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print("ADD EVENT SUCCESSFUL");
+        print("NEW TESTIMONY SUCCESSFUL");
         return 'success';
       } else {
         print(response.statusCode);
-        print("ADD EVENT FAILED");
+        print("NEW TESTIMONY FAILED");
         return responseData['message'];
       }
     } catch (exception) {

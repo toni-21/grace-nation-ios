@@ -31,6 +31,7 @@ class _OnlinePartnershipState extends State<OnlinePartnership>
   late AnimationController controller;
   late Animation<double> scaleAnimation;
   bool completed = false;
+  BuildContext? mainContext;
 
   @override
   void initState() {
@@ -81,6 +82,7 @@ class _OnlinePartnershipState extends State<OnlinePartnership>
           frequency: frequency,
           startDate: startDate,
           endDate: endDate,
+          reference: txRef!,
           transactionId: int.parse(id!),
           paymentId: payId,
         );
@@ -94,7 +96,7 @@ class _OnlinePartnershipState extends State<OnlinePartnership>
           }));
         } else {
           showDialog(
-            context: context,
+            context: mainContext!,
             builder: (BuildContext context) {
               return AlertWidget(
                   title: 'Something went wrong', description: newPartnership);
@@ -324,7 +326,7 @@ class _OnlinePartnershipState extends State<OnlinePartnership>
                       setState(() {
                         _isLoading = true;
                       });
-                      BuildContext mainContext = context;
+                      BuildContext mainCont = context;
                       final payInit =
                           Provider.of<AppProvider>(context, listen: false)
                               .paymentInit;
@@ -340,87 +342,50 @@ class _OnlinePartnershipState extends State<OnlinePartnership>
                         startDate: payInit.startDate,
                         endDate: payInit.endDate,
                       );
-                      setState(() {
-                        _isLoading = false;
-                      });
                       if (payMap['status'] == 'success') {
                         final payload = payMap['data'];
+                        Map<String, dynamic> paymentResponse =
+                            await payApi.gatewayPayment(
+                                context: context,
+                                amount: payload['amount'].toString(),
+                                referenceId: payload['reference'],
+                                publicKey: payload['flutterwave_public_key'],
+                                planId: payload['gateway_plan_id'].toString(),
+                                name:
+                                    "${payload['user']['first_name']} ${payload['user']['last_name']}",
+                                currency: payInit.currency,
+                                phoneNumber: payload['user']['phone'],
+                                email: payload['user']['email']);
 
-                        showGeneralDialog(
-                          context: context,
-                          barrierLabel: "Barrier",
-                          barrierDismissible: true,
-                          barrierColor: Colors.black.withOpacity(0.5),
-                          transitionDuration: Duration(milliseconds: 200),
-                          pageBuilder: (_, __, ___) {
-                            return StatefulBuilder(
-                                builder: (context, setState) {
-                              return Center(
-                                child: SuccessWidget(
-                                  title: 'Initialization Successful',
-                                  description:
-                                      'Partnership plan was initiated successfully',
-                                  callback: () async {
-                                    Map<String, dynamic> paymentResponse =
-                                        await payApi.gatewayPayment(
-                                            context: context,
-                                            amount:
-                                                payload['amount'].toString(),
-                                            referenceId: payload['reference'],
-                                            publicKey: payload[
-                                                'flutterwave_public_key'],
-                                            planId: payload['gateway_plan_id']
-                                                .toString(),
-                                            name:
-                                                "${payload['user']['first_name']} ${payload['user']['last_name']}",
-                                            currency: payload['currency'],
-                                            phoneNumber: payload['user']
-                                                ['phone'],
-                                            email: payload['user']['email']);
-
-                                    if (paymentResponse['status'] ==
-                                        'success') {
-                                      showModalBottomSheet(
-                                          isScrollControlled: true,
-                                          isDismissible: false,
-                                          enableDrag: false,
-                                          backgroundColor: Colors.transparent,
-                                          context: mainContext,
-                                          builder: (BuildContext context) {
-                                            return webviewContainer(
-                                                context: context,
-                                                url: paymentResponse['data']
-                                                    ['link'],
-                                                amount: payInit.amount,
-                                                currency: payInit.currency,
-                                                supportType:
-                                                    payInit.supportType,
-                                                paymentType: 'online',
-                                                frequency: payInit.frequency,
-                                                startDate: payInit.startDate,
-                                                endDate: payInit.endDate,
-                                                payId: payload['id']);
-                                          });
-                                    }
-                                  },
-                                ),
-                              );
-                            });
-                          },
-                          transitionBuilder: (_, anim, __, child) {
-                            return ScaleTransition(
-                              // position: tween.animate(anim),
-                              scale: CurvedAnimation(
-                                  parent: controller,
-                                  curve: Curves.elasticInOut),
-                              child: FadeTransition(
-                                opacity: anim,
-                                child: child,
-                              ),
-                            );
-                          },
-                        );
+                        if (paymentResponse['status'] == 'success') {
+                          setState(() {
+                            _isLoading = false;
+                            mainContext = mainCont;
+                          });
+                          showModalBottomSheet(
+                              isScrollControlled: true,
+                              isDismissible: false,
+                              enableDrag: false,
+                              backgroundColor: Colors.transparent,
+                              context: mainCont,
+                              builder: (BuildContext context) {
+                                return webviewContainer(
+                                    context: context,
+                                    url: paymentResponse['data']['link'],
+                                    amount: payInit.amount,
+                                    currency: payInit.currency,
+                                    supportType: payInit.supportType,
+                                    paymentType: 'online',
+                                    frequency: payInit.frequency,
+                                    startDate: payInit.startDate,
+                                    endDate: payInit.endDate,
+                                    payId: payload['id']);
+                              });
+                        }
                       } else {
+                        setState(() {
+                          _isLoading = false;
+                        });
                         showGeneralDialog(
                           context: context,
                           barrierLabel: "Barrier",

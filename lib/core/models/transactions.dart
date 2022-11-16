@@ -12,7 +12,7 @@ class Transactions {
   final String? failedAt;
   final String? completedAt;
   final int paid;
-  final String description;
+  final String? description;
   final String? paymentDate;
 
   Transactions(
@@ -24,13 +24,13 @@ class Transactions {
       required this.amount,
       required this.currency,
       required this.paid,
-      required this.description,
+      this.description,
       required this.status,
       required this.statusReadable,
       this.pendedAt,
       this.completedAt,
       this.failedAt,
-     this.paymentDate});
+      this.paymentDate});
 
   factory Transactions.fromJson(Map<String, dynamic> json) => Transactions(
         id: json["id"],

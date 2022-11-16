@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #FFFFFFF;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+  </head>
+  <body>
+    <!-- Embedded Bible. https://biblia.com/plugins/embeddedbible -->
+    <biblia:bible layout="minimal" resource="nkjv" width="100%" height="100%" startingReference="Ge1.1"></biblia:bible>
+    <!-- If you’re including multiple Biblia widgets, you only need this script tag once -->
+    <script src="//biblia.com/api/logos.biblia.js"></script>
+    <script>
+      logos.biblia.init();
+    </script>
+  </body>
+</html>

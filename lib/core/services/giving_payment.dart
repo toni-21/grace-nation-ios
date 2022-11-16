@@ -90,14 +90,14 @@ class GivingPayment {
   }
 
   Future<String> recordPayment({
-    required int transactionId,
+    required String reference,
     required int givingTypeId,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     String accessToken = prefs.getString('accessToken') ?? "";
     print(accessToken);
     Map<String, dynamic> body = {
-      "transaction_id": transactionId,
+      "reference": reference,
       "giving_type_id": givingTypeId,
     };
     Map<String, String> requestHeaders = {

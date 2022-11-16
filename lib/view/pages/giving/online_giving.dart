@@ -14,7 +14,11 @@ import 'package:grace_nation/view/shared/widgets/appbar.dart';
 import 'package:grace_nation/view/shared/widgets/failure_widget.dart';
 import 'package:grace_nation/view/shared/widgets/success_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_paystack/flutter_paystack.dart';
+
+enum PaymentGateWay {
+  Flutterwave,
+  Paystack;
+}
 
 class OnlineGiving extends StatefulWidget {
   @override
@@ -27,9 +31,9 @@ class _OnlineGiving extends State<OnlineGiving>
     with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   bool completed = false;
+  BuildContext? mainContext;
   final payApi = PaymentApi();
   final givingApi = GivingPayment();
-  final plugin = PaystackPlugin();
 
   late AnimationController controller;
   late Animation<double> scaleAnimation;
@@ -47,24 +51,21 @@ class _OnlineGiving extends State<OnlineGiving>
     });
 
     controller.forward();
-    plugin.initialize(
-        publicKey: Provider.of<AppProvider>(context, listen: false)
-                .preferences
-                .paystackKey ??
-            "");
   }
 
   webviewContainer({
     required BuildContext context,
     required String url,
     required int givingTypeId,
+    required PaymentGateWay paymentGateWay,
   }) {
     bool hasCompletedProcessing = false;
     bool haveCallBacksBeenCalled = false;
     BuildContext savedContext = context;
     final cont = Navigator.of(context);
 
-    _processResponse(Uri url, String? status, String? txRef, String? id) async {
+    _processFlutterwaveResponse(
+        Uri url, String? status, String? txRef, String? id) async {
       print("STATUS IS $status!!");
       if ("successful" == status) {
         print('id is .. $id and txref is $txRef');
@@ -75,7 +76,7 @@ class _OnlineGiving extends State<OnlineGiving>
         cont.pop();
         String recordPayment = await givingApi.recordPayment(
           givingTypeId: givingTypeId,
-          transactionId: int.parse(id!),
+          reference: txRef!,
         );
 
         if (recordPayment == "success") {
@@ -115,8 +116,54 @@ class _OnlineGiving extends State<OnlineGiving>
       //close();
     }
 
-    // @override
-    // Future onLoadStop(url) async {}
+    _processPaystackResponse(Uri url, String? txRef, String? id) async {
+      if (txRef != null) {
+        print('id is .. $id and txref is $txRef');
+        //  callBack.onTransactionSuccess(id!, txRef!);
+        setState(() {
+          _isLoading = true;
+        });
+        cont.pop();
+        String recordPayment = await givingApi.recordPayment(
+          givingTypeId: givingTypeId,
+          reference: txRef,
+        );
+        if (recordPayment == "success") {
+          setState(() {
+            _isLoading = false;
+            completed = true;
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+          showDialog(
+            context: mainContext!,
+            builder: (BuildContext context) {
+              return AlertWidget(
+                  title: 'Something went wrong', description: recordPayment);
+            },
+          );
+        }
+      } else {
+        /// callBack.onCancelled();
+        print('Transaction cancelled');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 2),
+            backgroundColor: Colors.red,
+            content: Text(
+              'Transaction cancelled',
+              style: TextStyle(color: white),
+            ),
+          ),
+        );
+        Navigator.pop(context);
+      }
+      haveCallBacksBeenCalled = true;
+      print('CALL BACKS HAVE BEEN CALLED, CLOSING NOW!!');
+      //close();
+    }
 
     Future<void> _launchUrl(Uri url) async {
       print('lauched url');
@@ -129,6 +176,7 @@ class _OnlineGiving extends State<OnlineGiving>
       crossPlatform: InAppWebViewOptions(
         // userAgent: userAgent,
         cacheEnabled: true,
+        userAgent: 'Flutter;Webview',
         useOnLoadResource: true,
         useOnDownloadStart: true,
         javaScriptCanOpenWindowsAutomatically: true,
@@ -147,7 +195,6 @@ class _OnlineGiving extends State<OnlineGiving>
       android: AndroidInAppWebViewOptions(
           useHybridComposition: true, useWideViewPort: false),
     );
-    debugPrint('user is number is $url');
     InAppWebViewController? webViewController;
     Widget view = InAppWebView(
       initialOptions: options,
@@ -156,24 +203,33 @@ class _OnlineGiving extends State<OnlineGiving>
       ),
       onWebViewCreated: (controller) async {
         webViewController = controller;
-        //await _launchUrl(Uri.parse(url));
-        controller.addJavaScriptHandler(
-            handlerName: 'myHandlerName',
-            callback: (args) {
-              // print arguments coming from the JavaScript side!
-              print(args);
-              // return data to the JavaScript side!
-              //return {'bar': 'bar_value', 'baz': 'baz_value'};
-            });
       },
       onLoadStart: (controller, url) async {
-        final status = url?.queryParameters["status"];
-        final txRef = url?.queryParameters["tx_ref"];
-        final id = url?.queryParameters["transaction_id"];
-        final hasRedirected = status != null && txRef != null;
-        if (hasRedirected && url != null) {
-          hasCompletedProcessing = hasRedirected;
-          _processResponse(url, status, txRef, id);
+        print(
+            "current parameters are ${url?.queryParametersAll.toString()} current preocess is ${paymentGateWay.toString()} and ref is ${url?.queryParameters["ref"]}");
+        if (paymentGateWay == PaymentGateWay.Flutterwave) {
+          Map<String, dynamic>? response =
+              url?.queryParameters["response"] as Map<String, dynamic>;
+          print("FOR FLUTTERWAVE, STATUS IS ${response['status']}");
+          final status = url?.queryParameters["status"];
+          final txRef = url?.queryParameters["tx_ref"];
+          final id = url?.queryParameters["transaction_id"];
+          final hasRedirected = status != null && txRef != null;
+          print('id is .. $id and txref is $txRef and status is $status');
+          if (hasRedirected && url != null) {
+            hasCompletedProcessing = hasRedirected;
+            _processFlutterwaveResponse(url, status, txRef, id);
+          }
+        } else {
+          final txRef = url?.queryParameters["trxref"];
+          final id = url?.queryParameters["id"];
+          print('paystack reference is $txRef');
+          print('paystack id is $id');
+          final hasRedirected = txRef != null;
+          if (hasRedirected && url != null) {
+            hasCompletedProcessing = hasRedirected;
+            _processPaystackResponse(url, txRef, id);
+          }
         }
       },
       onLoadError: ((controller, url, code, message) {
@@ -207,7 +263,7 @@ class _OnlineGiving extends State<OnlineGiving>
         return NavigationActionPolicy.ALLOW;
       },
       onConsoleMessage: (controller, consoleMessage) {
-        print(consoleMessage);
+        print(consoleMessage.message);
       },
     );
 
@@ -360,13 +416,154 @@ class _OnlineGiving extends State<OnlineGiving>
                         )
                       ],
                     ),
+                    // GestureDetector(
+                    //     onTap: () async {
+                    //       setState(() {
+                    //         completed = false;
+                    //         _isLoading = true;
+                    //       });
+                    //       BuildContext mainContext = context;
+                    //       final givingInit =
+                    //           Provider.of<AppProvider>(context, listen: false)
+                    //               .givingInit;
+                    //       Provider.of<AppProvider>(context, listen: false)
+                    //           .beginPaymentState();
+                    //       final Map<String, dynamic> payMap =
+                    //           await givingApi.initializePayment(
+                    //               amount: givingInit.amount,
+                    //               currency: givingInit.currency,
+                    //               givingTypeId: givingInit.givingTypeId);
+
+                    //       if (payMap['status'] == 'success') {
+                    //         final payload = payMap['data']['data'];
+
+                    //         Map<String, dynamic> paymentResponse =
+                    //             await givingApi.gatewayPayment(
+                    //                 context: context,
+                    //                 amount: payload['amount'].toString(),
+                    //                 referenceId: payload['reference'],
+                    //                 publicKey: Provider.of<AppProvider>(context,
+                    //                         listen: false)
+                    //                     .preferences
+                    //                     .flutterwaveKey!,
+                    //                 planId: '',
+                    //                 currency: payload['currency'],
+                    //                 email: payMap['data']['email']);
+                    //         setState(() {
+                    //           _isLoading = false;
+                    //         });
+                    //         if (paymentResponse['status'] == 'success') {
+                    //           showModalBottomSheet(
+                    //               isScrollControlled: true,
+                    //               isDismissible: false,
+                    //               enableDrag: false,
+                    //               backgroundColor: Colors.transparent,
+                    //               context: mainContext,
+                    //               builder: (BuildContext context) {
+                    //                 return webviewContainer(
+                    //                     context: context,
+                    //                     url: paymentResponse['data']['link'],
+                    //                     givingTypeId: givingInit.givingTypeId,
+                    //                     paymentGateWay:
+                    //                         PaymentGateWay.Flutterwave);
+                    //               });
+                    //         }
+                    //       } else {
+                    //         setState(() {
+                    //           _isLoading = false;
+                    //         });
+                    //         showGeneralDialog(
+                    //           context: context,
+                    //           barrierLabel: "Barrier",
+                    //           barrierDismissible: true,
+                    //           barrierColor: Colors.black.withOpacity(0.5),
+                    //           transitionDuration: Duration(milliseconds: 200),
+                    //           pageBuilder: (_, __, ___) {
+                    //             return StatefulBuilder(
+                    //                 builder: (context, setState) {
+                    //               return Center(
+                    //                 child: FailureWidget(
+                    //                   title: 'Initialization Failed',
+                    //                   description:
+                    //                       'We could not initiate your payment, try again.',
+                    //                 ),
+                    //               );
+                    //             });
+                    //           },
+                    //           transitionBuilder: (_, anim, __, child) {
+                    //             return ScaleTransition(
+                    //               // position: tween.animate(anim),
+                    //               scale: CurvedAnimation(
+                    //                   parent: controller,
+                    //                   curve: Curves.elasticInOut),
+                    //               child: FadeTransition(
+                    //                 opacity: anim,
+                    //                 child: child,
+                    //               ),
+                    //             );
+                    //           },
+                    //         );
+                    //       }
+                    //     },
+                    //     child: Container(
+                    //       margin: EdgeInsets.only(left: 18, right: 18),
+                    //       padding: EdgeInsets.all(16),
+                    //       decoration: BoxDecoration(
+                    //         color: Theme.of(context).hoverColor,
+                    //         borderRadius: BorderRadius.all(
+                    //           Radius.circular(20),
+                    //         ),
+                    //       ),
+                    //       child: Row(
+                    //         children: [
+                    //           Container(
+                    //             decoration: BoxDecoration(
+                    //               image: DecorationImage(
+                    //                   image: AssetImage(
+                    //                       'assets/images/flutterwave.png'),
+                    //                   fit: BoxFit.cover),
+                    //               borderRadius: BorderRadius.all(
+                    //                 Radius.circular(4),
+                    //               ),
+                    //             ),
+                    //             height: 32,
+                    //             width: 32,
+                    //           ),
+                    //           SizedBox(width: 15),
+                    //           Flexible(
+                    //               child: Column(
+                    //             crossAxisAlignment: CrossAxisAlignment.start,
+                    //             children: [
+                    //               Text(
+                    //                 'Give with Flutterwave',
+                    //                 style: TextStyle(
+                    //                     color:
+                    //                         Theme.of(context).primaryColorDark,
+                    //                     fontWeight: FontWeight.bold,
+                    //                     fontSize: 16),
+                    //               ),
+
+                    //               // SizedBox(height: 5),
+                    //               Text(
+                    //                 'Make payment using your debit card',
+                    //                 style: TextStyle(
+                    //                     color: Color.fromRGBO(123, 127, 158, 1),
+                    //                     fontWeight: FontWeight.bold,
+                    //                     fontSize: 12),
+                    //               ),
+                    //             ],
+                    //           ))
+                    //         ],
+                    //       ),
+                    //     )),
+                    // SizedBox(height: 25),
                     GestureDetector(
                         onTap: () async {
                           setState(() {
                             completed = false;
                             _isLoading = true;
                           });
-                          BuildContext mainContext = context;
+                          BuildContext mainCont = context;
                           final givingInit =
                               Provider.of<AppProvider>(context, listen: false)
                                   .givingInit;
@@ -380,306 +577,22 @@ class _OnlineGiving extends State<OnlineGiving>
 
                           setState(() {
                             _isLoading = false;
+                            mainContext = mainCont;
                           });
                           if (payMap['status'] == 'success') {
-                            final payload = payMap['data']['data'];
-
-                            showGeneralDialog(
-                              context: context,
-                              barrierLabel: "Barrier",
-                              barrierDismissible: true,
-                              barrierColor: Colors.black.withOpacity(0.5),
-                              transitionDuration: Duration(milliseconds: 200),
-                              pageBuilder: (_, __, ___) {
-                                return StatefulBuilder(
-                                    builder: (context, setState) {
-                                  return Center(
-                                    child: SuccessWidget(
-                                      title: 'Initialization Successful',
-                                      description:
-                                          'Payment was initiated successfully',
-                                      callback: () async {
-                                        Map<String, dynamic> paymentResponse =
-                                            await givingApi.gatewayPayment(
-                                                context: context,
-                                                amount: payload['amount']
-                                                    .toString(),
-                                                referenceId:
-                                                    payload['reference'],
-                                                publicKey: payload[
-                                                    'flutterwave_public_key'],
-                                                planId: '',
-                                                currency: payload['currency'],
-                                                email:
-                                                    'support@gracenation.com');
-
-                                        if (paymentResponse['status'] ==
-                                            'success') {
-                                          showModalBottomSheet(
-                                              isScrollControlled: true,
-                                              isDismissible: false,
-                                              enableDrag: false,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              context: mainContext,
-                                              builder: (BuildContext context) {
-                                                return webviewContainer(
-                                                  context: context,
-                                                  url: paymentResponse['data']
-                                                      ['link'],
-                                                  givingTypeId:
-                                                      givingInit.givingTypeId,
-                                                );
-                                              });
-                                        }
-                                      },
-                                    ),
-                                  );
-                                });
-                              },
-                              transitionBuilder: (_, anim, __, child) {
-                                return ScaleTransition(
-                                  // position: tween.animate(anim),
-                                  scale: CurvedAnimation(
-                                      parent: controller,
-                                      curve: Curves.elasticInOut),
-                                  child: FadeTransition(
-                                    opacity: anim,
-                                    child: child,
-                                  ),
-                                );
-                              },
-                            );
-                          } else {
-                            showGeneralDialog(
-                              context: context,
-                              barrierLabel: "Barrier",
-                              barrierDismissible: true,
-                              barrierColor: Colors.black.withOpacity(0.5),
-                              transitionDuration: Duration(milliseconds: 200),
-                              pageBuilder: (_, __, ___) {
-                                return StatefulBuilder(
-                                    builder: (context, setState) {
-                                  return Center(
-                                    child: FailureWidget(
-                                      title: 'Initialization Failed',
-                                      description:
-                                          'We could not initiate your payment, try again.',
-                                    ),
-                                  );
-                                });
-                              },
-                              transitionBuilder: (_, anim, __, child) {
-                                return ScaleTransition(
-                                  // position: tween.animate(anim),
-                                  scale: CurvedAnimation(
-                                      parent: controller,
-                                      curve: Curves.elasticInOut),
-                                  child: FadeTransition(
-                                    opacity: anim,
-                                    child: child,
-                                  ),
-                                );
-                              },
-                            );
-                          }
-                        },
-                        child: Container(
-                          margin: EdgeInsets.only(left: 18, right: 18),
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).hoverColor,
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(20),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/images/flutterwave.png'),
-                                      fit: BoxFit.cover),
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(4),
-                                  ),
-                                ),
-                                height: 32,
-                                width: 32,
-                              ),
-                              SizedBox(width: 15),
-                              Flexible(
-                                  child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Give with Flutterwave',
-                                    style: TextStyle(
-                                        color:
-                                            Theme.of(context).primaryColorDark,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16),
-                                  ),
-
-                                  // SizedBox(height: 5),
-                                  Text(
-                                    'Make payment using your debit card',
-                                    style: TextStyle(
-                                        color: Color.fromRGBO(123, 127, 158, 1),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12),
-                                  ),
-                                ],
-                              ))
-                            ],
-                          ),
-                        )),
-                    SizedBox(height: 25),
-                    InkWell(
-                        onTap: () async {
-                          //                       Charge charge = Charge()
-                          //    ..amount = 10000
-                          //    ..reference = _getReference()
-                          //     // or ..accessCode = _getAccessCodeFrmInitialization()
-                          //    ..email = 'customer@email.com';
-                          //  CheckoutResponse response = await plugin.checkout(
-                          //    context context,
-                          //    method: CheckoutMethod.card, // Defaults to CheckoutMethod.selectable
-                          //    charge: charge,
-                          //  );
-
-                          setState(() {
-                            completed = false;
-                            _isLoading = true;
-                          });
-
-                          BuildContext mainContext = context;
-                          final givingInit =
-                              Provider.of<AppProvider>(context, listen: false)
-                                  .givingInit;
-                          Provider.of<AppProvider>(context, listen: false)
-                              .beginPaymentState();
-                          final Map<String, dynamic> payMap =
-                              await givingApi.initializePayment(
-                                  amount: givingInit.amount,
-                                  currency: givingInit.currency,
-                                  givingTypeId: givingInit.givingTypeId);
-
-                          setState(() {
-                            _isLoading = false;
-                          });
-                          if (payMap['status'] == 'success') {
-                            final payload = payMap['data']['data'];
-
-                            showGeneralDialog(
-                              context: context,
-                              barrierLabel: "Barrier",
-                              barrierDismissible: true,
-                              barrierColor: Colors.black.withOpacity(0.5),
-                              transitionDuration: Duration(milliseconds: 200),
-                              pageBuilder: (_, __, ___) {
-                                return StatefulBuilder(builder: (context, set) {
-                                  return Center(
-                                    child: SuccessWidget(
-                                      title: 'Initialization Successful',
-                                      description:
-                                          'Payment was initiated successfully',
-                                      callback: () async {
-                                        Charge charge = Charge()
-                                          ..amount = payload['amount']
-                                          ..reference = payload['reference']
-                                          // or ..accessCode = _getAccessCodeFrmInitialization()
-                                          ..email = 'customer@email.com';
-                                        CheckoutResponse response =
-                                            await plugin.checkout(
-                                          context,
-                                          method: CheckoutMethod
-                                              .card, // Defaults to CheckoutMethod.selectable
-                                          charge: charge,
-                                        );
-                                        if (response.status == true) {
-                                          setState(() {
-                                            _isLoading = true;
-                                          });
-
-                                          String recordPayment =
-                                              await givingApi.recordPayment(
-                                                  givingTypeId:
-                                                      givingInit.givingTypeId,
-                                                  transactionId:
-                                                      response.hashCode);
-
-                                          if (recordPayment == "success") {
-                                            setState(() {
-                                              _isLoading = false;
-                                              completed = true;
-                                            });
-                                          } else {
-                                            setState(() {
-                                              _isLoading = false;
-                                            });
-                                            showDialog(
-                                              context: mainContext,
-                                              builder: (BuildContext context) {
-                                                return AlertWidget(
-                                                    title:
-                                                        'Something went wrong',
-                                                    description: recordPayment);
-                                              },
-                                            );
-                                          }
-                                        }
-
-                                        // Map<String, dynamic> paymentResponse =
-                                        //     await givingApi.gatewayPayment(
-                                        //         context: context,
-                                        //         amount: payload['amount']
-                                        //             .toString(),
-                                        //         referenceId:
-                                        //             payload['reference'],
-                                        //         publicKey: payload[
-                                        //             'flutterwave_public_key'],
-                                        //         planId: '',
-                                        //         currency: payload['currency'],
-                                        //         email:
-                                        //             'support@gracenation.com');
-
-                                        // if (paymentResponse['status'] ==
-                                        //     'success') {
-                                        //   showModalBottomSheet(
-                                        //       isScrollControlled: true,
-                                        //       isDismissible: false,
-                                        //       enableDrag: false,
-                                        //       backgroundColor:
-                                        //           Colors.transparent,
-                                        //       context: mainContext,
-                                        //       builder: (BuildContext context) {
-                                        //         return webviewContainer(
-                                        //           context: context,
-                                        //           url: paymentResponse['data']
-                                        //               ['link'],
-                                        //           givingTypeId:
-                                        //               givingInit.givingTypeId,
-                                        //         );
-//                           });
-                                        //                                      }
-                                      },
-                                    ),
-                                  );
-                                });
-                              },
-                              transitionBuilder: (_, anim, __, child) {
-                                return ScaleTransition(
-                                  // position: tween.animate(anim),
-                                  scale: CurvedAnimation(
-                                      parent: controller,
-                                      curve: Curves.elasticInOut),
-                                  child: FadeTransition(
-                                    opacity: anim,
-                                    child: child,
-                                  ),
-                                );
+                            showModalBottomSheet(
+                              isScrollControlled: true,
+                              isDismissible: false,
+                              enableDrag: false,
+                              backgroundColor: Colors.transparent,
+                              context: mainCont,
+                              builder: (BuildContext context) {
+                                return webviewContainer(
+                                    context: context,
+                                    url: payMap['data']['checkout']
+                                        ['authorization_url'],
+                                    givingTypeId: givingInit.givingTypeId,
+                                    paymentGateWay: PaymentGateWay.Paystack);
                               },
                             );
                           } else {

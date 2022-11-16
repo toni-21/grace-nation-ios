@@ -86,6 +86,7 @@ class PartnershipApi {
     String? startDate,
     required String endDate,
     required int transactionId,
+    required String reference,
     int? paymentId,
   }) async {
     Map<String, dynamic> map = {};
@@ -100,6 +101,7 @@ class PartnershipApi {
       "frequency": frequency,
       "start_date": startDate,
       "end_date": endDate,
+      "reference": reference,
       "transaction_id": transactionId,
       "payment_id": paymentId,
     };
@@ -140,6 +142,7 @@ class PartnershipApi {
     required int supportType,
     required String paymentType,
     required String frequency,
+    required String reference,
     String? startDate,
     required String endDate,
     int? paymentId,
@@ -154,6 +157,7 @@ class PartnershipApi {
       "support_type": supportType,
       "payment_type": 'offline',
       "frequency": frequency,
+      "reference": reference,
       "start_date": startDate,
       "end_date": endDate,
       "payment_id": paymentId,

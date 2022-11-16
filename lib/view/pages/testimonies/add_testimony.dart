@@ -478,7 +478,7 @@ class _AddTestimonyState extends State<AddTestimony>
                             }),
                         Expanded(
                           child: Text(
-                            'I hereby consent that the church can share my testimony in of of the media platforms. ',
+                            'I hereby consent that the church can share my testimony on the media platforms. ',
                             softWrap: true,
                             style: TextStyle(
                                 color: Theme.of(context)

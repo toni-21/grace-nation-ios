@@ -55,7 +55,6 @@ dependencies:
   audio_service: ^0.18.7
   flutter_downloader: ^1.8.4
   dropdown_search: ^5.0.3
-  flutter_paystack: ^1.0.6
 
 dev_dependencies:
   flutter_test:

@@ -26,13 +26,13 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
   void initState() {
     Future.delayed(Duration(milliseconds: 5), () {
       setState(() {
+        double divider = widget.partnership.totalPayable == 0
+            ? widget.partnership.amount
+            : widget.partnership.totalPayable;
         calcProgress = ((widget.partnership.transactions!.length *
-                                widget.partnership.amount)
-                            .truncate() /
-                        widget.partnership.totalPayable ==
-                    0
-                ? 1
-                : widget.partnership.totalPayable) *
+                        widget.partnership.amount)
+                    .truncate() /
+                divider) *
             MediaQuery.of(context).size.width /
             1.125;
       });

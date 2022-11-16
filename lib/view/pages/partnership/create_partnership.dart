@@ -95,8 +95,7 @@ class _CreatePartnershipState extends State<CreatePartnership> {
       );
       selectedPaymentOption == 'online'
           ? context.goNamed(onlinePartnershipRouteName)
-          : Navigator.of(context).push(MaterialPageRoute(
-              builder: (BuildContext context) => TemporaryCongrats()));
+          : context.goNamed(offlinePartnershipRouteName);
     }
   }
 
@@ -242,10 +241,14 @@ class _CreatePartnershipState extends State<CreatePartnership> {
         dropDownItemCount: list.length,
         onChanged: ((value) {
           if (value == null || value == "") {
+            if (type == CreateFormType.currency) {
+              setState(() {
+                selectedCurrency = "NGN";
+              });
+            }
             return;
           } else {
             print('${value.name}');
-
             switch (type) {
               case CreateFormType.currency:
                 setState(() {
@@ -339,8 +342,11 @@ class _CreatePartnershipState extends State<CreatePartnership> {
                 ),
               ),
               onChanged: (value) {
-                selectedAmount = int.parse(value);
-                print("amount is $selectedAmount");
+                if (value.length > 0)
+                  setState(() {
+                    selectedAmount = int.parse(value);
+                    print("amount is $selectedAmount");
+                  });
               },
               onTap: () {
                 // setState(() {

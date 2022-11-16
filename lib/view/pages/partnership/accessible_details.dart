@@ -115,7 +115,10 @@ class _AccessibleDetailsState extends State<AccessibleDetails>
                         description:
                             "Do you wish to cancel partnership and return to homepage?",
                         callback: () {
-                          context.go(partnershipPageRouteName);
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (BuildContext context) {
+                            return PartnershipPage();
+                          }));
                         },
                         actionText: "Yes",
                         exitText: "No");
