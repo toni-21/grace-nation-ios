@@ -62,6 +62,9 @@ class _GiveScreenState extends State<GiveScreen> {
       DropDownValueModel model =
           DropDownValueModel(name: type.name, value: type.id);
       givingTypeList.add(model);
+      setState(() {
+        selectedGivingTypeId = 0;
+      });
     }
     print("DONE with support types");
     setState(() {
@@ -467,7 +470,7 @@ class _GiveScreenState extends State<GiveScreen> {
                         Expanded(
                           flex: 4,
                           child: dropdownField(
-                            'Offering',
+                            givingTypeList[0].name,
                             givingTypeList,
                           ),
                         ),
