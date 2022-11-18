@@ -217,12 +217,18 @@ class _PartnershipDetailState extends State<PartnershipDetail>
   }
 
   Widget partnershipWidget() {
-    int numberofTransations = pts.transactions!.length;
-    int currentPayment = (numberofTransations * pts.amount).truncate();
+    List<Transactions> approvedTransactions = [];
+    for (int i = 0; i < pts.transactions!.length; i++) {
+      if (pts.transactions![i].status == 1) {
+        approvedTransactions.add(pts.transactions![i]);
+      }
+    }
+    //int numberofTransations = pts.transactions!.length;
+    int currentPayment = (approvedTransactions.length * pts.amount).truncate();
     String freq = pts.frequency == 'monthly' ? 'mth' : pts.frequency;
     String currency = pts.currency == "NGN" ? '₦' : '\$';
     double calcProgress =
-        (currentPayment / pts.totalPayable == 0 ? 1 : pts.totalPayable) *
+        (currentPayment / (pts.totalPayable == 0 ? 1 : pts.totalPayable)) *
             MediaQuery.of(context).size.width /
             1.125;
 

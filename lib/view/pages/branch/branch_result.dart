@@ -136,6 +136,17 @@ class BranchResult extends StatelessWidget {
               color: babyBlue,
             ),
           ),
+          Positioned(
+            top: 25,
+            right: 18,
+            child: InkWell(
+              child: Icon(
+                Icons.location_on_sharp,
+                size: 30,
+                color: babyBlue,
+              ),
+            ),
+          ),
         ]));
   }
 

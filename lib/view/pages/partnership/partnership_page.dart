@@ -85,7 +85,7 @@ class _PartnershipPageState extends State<PartnershipPage>
       partnership.transactions = List.from(transacsss.reversed);
       partness.add(partnership);
     }
-    _partnership = List.from(partness.reversed);
+    _partnership = partness;
     print("NUMBER OF PARTNERSHIPS IS ${_partnership.length}");
     setState(() {
       isLoading = false;

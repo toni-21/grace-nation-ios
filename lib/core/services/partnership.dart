@@ -57,7 +57,7 @@ class PartnershipApi {
     try {
       debugPrint(' endpoint is ${AppConfig.partnerships}');
       final response = await http.get(
-        Uri.parse(AppConfig.partnerships),
+        Uri.parse('${AppConfig.partnerships}?perPage=200'),
         headers: requestHeaders,
       );
       debugPrint(response.body);

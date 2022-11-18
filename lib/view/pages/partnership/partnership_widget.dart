@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grace_nation/core/models/partnership.dart';
+import 'package:grace_nation/core/models/transactions.dart';
 import 'package:grace_nation/utils/constants.dart';
 import 'package:grace_nation/utils/styles.dart';
 import 'package:intl/intl.dart';
@@ -25,16 +26,22 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
   @override
   void initState() {
     Future.delayed(Duration(milliseconds: 5), () {
+      List<Transactions> approvedTransactions = [];
+      for (int i = 0; i < widget.partnership.transactions!.length; i++) {
+        if (widget.partnership.transactions![i].status == 1) {
+          approvedTransactions.add(widget.partnership.transactions![i]);
+        }
+      }
       setState(() {
         double divider = widget.partnership.totalPayable == 0
             ? widget.partnership.amount
             : widget.partnership.totalPayable;
-        calcProgress = ((widget.partnership.transactions!.length *
-                        widget.partnership.amount)
-                    .truncate() /
-                divider) *
-            MediaQuery.of(context).size.width /
-            1.125;
+        calcProgress =
+            ((approvedTransactions.length * widget.partnership.amount)
+                        .truncate() /
+                    divider) *
+                MediaQuery.of(context).size.width /
+                1.125;
       });
     });
     super.initState();
@@ -42,9 +49,15 @@ class _PartnerShipWidgetState extends State<PartnershipWidget> {
 
   @override
   Widget build(BuildContext context) {
-    int numberofTransations = widget.partnership.transactions!.length;
+    //int numberofTransations = widget.partnership.transactions!.length;
+    List<Transactions> approvedTransactions = [];
+    for (int i = 0; i < widget.partnership.transactions!.length; i++) {
+      if (widget.partnership.transactions![i].status == 1) {
+        approvedTransactions.add(widget.partnership.transactions![i]);
+      }
+    }
     int currentPayment =
-        (numberofTransations * widget.partnership.amount).truncate();
+        (approvedTransactions.length * widget.partnership.amount).truncate();
 
     String currency = widget.partnership.currency == "NGN" ? '₦' : '\$';
 
