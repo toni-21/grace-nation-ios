@@ -23,9 +23,9 @@ class EventDetails extends StatelessWidget {
     }
     print('listlegthis... ${event.endDate}');
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   Provider.of<AppProvider>(context, listen: false).cacheEvent(event);
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AppProvider>(context, listen: false).cacheEvent(event);
+    });
 
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,

@@ -45,14 +45,16 @@ class OfflineGiving extends StatelessWidget {
   String getGivingType(int type) {
     switch (type) {
       case 1:
-        return 'Offering/Seed';
+        return 'Offering';
       case 2:
         return 'Tithe';
       case 3:
-        return 'TV Support';
+        return 'Building Project';
       case 4:
-        return 'Building Support';
+        return 'Seed';
       case 5:
+        return 'TV Support';
+      case 6:
         return 'Welfare';
       default:
         return 'Offering/Seed';
@@ -65,11 +67,13 @@ class OfflineGiving extends StatelessWidget {
         return 'Diamond/Access Bank';
       case 2:
         return 'Zenith Bank Nigeria';
-      case 3:
-        return 'UBA - Nigeria';
+      case 4:
+        return 'Diamond/Access Bank';
       case 4:
         return 'Diamond/Access Bank';
       case 5:
+        return 'UBA - Nigeria';
+      case 6:
         return 'Guarantee Trust Bank';
       default:
         return 'Diamond/Access Bank';
@@ -87,6 +91,8 @@ class OfflineGiving extends StatelessWidget {
       case 4:
         return 'Mountain of Liberation Miracle Ministries';
       case 5:
+        return 'Mountain of Liberation Miracle Ministries';
+      case 6:
         return 'Greater Liberation City International Ministires';
       default:
         return 'Mountain of Liberation Miracle Ministries';
@@ -100,10 +106,12 @@ class OfflineGiving extends StatelessWidget {
       case 2:
         return '1015557088';
       case 3:
-        return '1017919426';
+        return '0049488042';
       case 4:
         return '0049488042';
       case 5:
+        return '1017919426';
+      case 6:
         return '0739773563';
       default:
         return '0049488042';

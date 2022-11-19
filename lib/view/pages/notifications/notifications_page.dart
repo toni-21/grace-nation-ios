@@ -384,12 +384,19 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          ' X Clear All Notifications',
-                          style: TextStyle(
-                            color: redPayment,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                        InkWell(
+                          onTap: () async {
+                            await Provider.of<AppProvider>(context,
+                                    listen: false)
+                                .clearNotifications();
+                          },
+                          child: Text(
+                            ' X Clear All Notifications',
+                            style: TextStyle(
+                              color: redPayment,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],

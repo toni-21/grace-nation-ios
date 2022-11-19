@@ -382,6 +382,7 @@ class AppProvider extends ChangeNotifier {
         }
       } else {}
     }
+    notifyListeners();
   }
 
   cacheTestimony(Testimony t) async {
@@ -439,6 +440,8 @@ class AppProvider extends ChangeNotifier {
           notifyListeners();
         }
       } else {}
+
+      notifyListeners();
     }
   }
 
@@ -458,6 +461,16 @@ class AppProvider extends ChangeNotifier {
     //n.readAt = DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
     //notificationList.remove(Notifications(id: t.uuid));
 
+    notifyListeners();
+  }
+
+  clearNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (int i = 0; i < _notificationList.length; i++) {
+      final n = _notificationList[i];
+      prefs.setString("${n.id}", "saved");
+    }
+    _notificationList = [];
     notifyListeners();
   }
 }
