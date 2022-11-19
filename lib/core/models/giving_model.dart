@@ -2,21 +2,23 @@ class GivingInit {
   final double amount;
   final String currency;
   final int givingTypeId;
+  final String? memberId;
 
-  GivingInit({
-    required this.amount,
-    required this.currency,
-    required this.givingTypeId,
-  });
+  GivingInit(
+      {required this.amount,
+      required this.currency,
+      required this.givingTypeId,
+      this.memberId});
 
   factory GivingInit.fromJson(Map<String, dynamic> json) => GivingInit(
         amount: double.parse(json["amount"].toString()),
         currency: json["currency"],
         givingTypeId: json["giving_type_id"],
+        memberId: json["member_id"],
       );
 }
 
-class GivingType{
+class GivingType {
   int id;
   String name;
   int status;

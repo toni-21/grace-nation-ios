@@ -573,7 +573,8 @@ class _OnlineGiving extends State<OnlineGiving>
                               await givingApi.initializePayment(
                                   amount: givingInit.amount,
                                   currency: givingInit.currency,
-                                  givingTypeId: givingInit.givingTypeId);
+                                  givingTypeId: givingInit.givingTypeId,
+                                  memberId: givingInit.memberId);
 
                           setState(() {
                             _isLoading = false;
@@ -608,8 +609,7 @@ class _OnlineGiving extends State<OnlineGiving>
                                   return Center(
                                     child: FailureWidget(
                                       title: 'Initialization Failed',
-                                      description:
-                                          'We could not initiate your payment, try again.',
+                                      description: payMap['message'],
                                     ),
                                   );
                                 });

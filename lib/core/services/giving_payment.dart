@@ -13,6 +13,7 @@ class GivingPayment {
     required double amount,
     required String currency,
     required int givingTypeId,
+    String? memberId,
   }) async {
     Map<String, dynamic> map = {};
     final prefs = await SharedPreferences.getInstance();
@@ -22,6 +23,7 @@ class GivingPayment {
       "amount": amount,
       "currency": currency,
       "giving_type_id": givingTypeId,
+      "member_id": memberId
     };
     Map<String, String> requestHeaders = {
       "Content-Type": "application/json",

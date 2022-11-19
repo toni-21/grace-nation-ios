@@ -23,6 +23,7 @@ class GiveScreen extends StatefulWidget {
 
 class _GiveScreenState extends State<GiveScreen> {
   final NumberFormat formatter = NumberFormat("#,##0", "en_US");
+  final memberIdTextController = TextEditingController();
   final paymentApi = PaymentApi();
   final givingApi = GivingPayment();
   bool isConfirming = false;
@@ -92,10 +93,15 @@ class _GiveScreenState extends State<GiveScreen> {
       Provider.of<AppProvider>(context, listen: false)
           .setGivingTypeId(selectedGivingTypeId!);
       Provider.of<AppProvider>(context, listen: false).givingInitPayment(
-          GivingInit(
-              amount: selectedAmount!.toDouble(),
-              currency: selectedCurrency,
-              givingTypeId: selectedGivingTypeId!));
+        GivingInit(
+            amount: selectedAmount!.toDouble(),
+            currency: selectedCurrency,
+            givingTypeId: selectedGivingTypeId!,
+            memberId: (memberIdTextController.text == "" ||
+                    memberIdTextController.text.length < 2)
+                ? null
+                : memberIdTextController.text),
+      );
       partnerType == PaymentType.offline
           ? context.goNamed(offlineGivingRouteName)
           : context.goNamed(onlineGivingRouteName);
@@ -311,8 +317,12 @@ class _GiveScreenState extends State<GiveScreen> {
                 } else {}
               },
               onChanged: (value) {
-                selectedAmount = int.parse(value);
-                print("selectedAmount is.. $selectedAmount");
+                if (value.length > 0) {
+                  setState(() {
+                    selectedAmount = int.parse(value);
+                    print("selectedAmount is.. $selectedAmount");
+                  });
+                }
               },
             ),
           ),
@@ -324,7 +334,6 @@ class _GiveScreenState extends State<GiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).backgroundColor,
       body: SafeArea(
         child: Container(
@@ -533,63 +542,73 @@ class _GiveScreenState extends State<GiveScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
-                    titleText('Giving ID', true),
-                    SizedBox(height: 10),
-                    Stack(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: SizedBox(
-                                height: 40,
-                                child: TextField(
-                                  keyboardType: TextInputType.visiblePassword,
-                                  decoration: InputDecoration(
-                                    hintText: "Please input giving id",
-                                    hintStyle:
-                                        TextStyle(color: partnerHintText),
-                                    filled: true,
-                                    fillColor: Theme.of(context).hoverColor,
-                                    contentPadding:
-                                        EdgeInsets.only(top: 6, left: 12),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        style: BorderStyle.solid,
-                                        color:
-                                            Color.fromRGBO(173, 173, 173, 0.3),
+
+                    partnerType == PaymentType.offline
+                        ? Container()
+                        : Column(children: [
+                            SizedBox(height: 20),
+                            titleText('Giving ID', true),
+                            SizedBox(height: 10),
+                            Stack(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 40,
+                                        child: TextField(
+                                          controller: memberIdTextController,
+                                          keyboardType:
+                                              TextInputType.visiblePassword,
+                                          decoration: InputDecoration(
+                                            hintText: "Please input giving id",
+                                            hintStyle: TextStyle(
+                                                color: partnerHintText),
+                                            filled: true,
+                                            fillColor:
+                                                Theme.of(context).hoverColor,
+                                            contentPadding: EdgeInsets.only(
+                                                top: 6, left: 12),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                style: BorderStyle.solid,
+                                                color: Color.fromRGBO(
+                                                    173, 173, 173, 0.3),
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                style: BorderStyle.solid,
+                                                color: babyBlue,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                      borderRadius: BorderRadius.circular(6),
                                     ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        style: BorderStyle.solid,
-                                        color: babyBlue,
-                                      ),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                  ),
+                                  ],
                                 ),
-                              ),
+                                isConfirming
+                                    ? Positioned(
+                                        top: 10,
+                                        right: 15,
+                                        child: Container(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: babyBlue,
+                                          ),
+                                        ),
+                                      )
+                                    : Container(),
+                              ],
                             ),
-                          ],
-                        ),
-                        isConfirming
-                            ? Positioned(
-                                top: 10,
-                                right: 15,
-                                child: Container(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: babyBlue,
-                                  ),
-                                ),
-                              )
-                            : Container(),
-                      ],
-                    ),
+                          ]),
                     SizedBox(height: 30),
                     CustomButton(
                         text: 'Continue',

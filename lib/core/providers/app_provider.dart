@@ -20,6 +20,7 @@ import 'package:grace_nation/core/services/preferences.dart';
 import 'package:grace_nation/core/services/resources.dart';
 import 'package:grace_nation/core/services/testimonies.dart';
 import 'package:grace_nation/core/services/notifications.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppTab {
@@ -62,7 +63,7 @@ class AppProvider extends ChangeNotifier {
   TextEditingController? titleEditingController;
   TextEditingController? contentEditingController;
   Preferences? _preferences;
-  List<Notifications>? _notificationList = [];
+  List<Notifications> _notificationList = [];
 
   AudioHandler get audioHandler {
     return _audioHandler!;
@@ -125,7 +126,6 @@ class AppProvider extends ChangeNotifier {
     return _payInit!;
   }
 
-  
   GivingInit get givingInit {
     return _givingPayInit!;
   }
@@ -163,7 +163,7 @@ class AppProvider extends ChangeNotifier {
   }
 
   List<Notifications> get notificationList {
-    return _notificationList!;
+    return _notificationList;
   }
 
   String get player => '''
@@ -344,83 +344,120 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  //DOWNLOAD VALUES
-  String? currentDownloadId;
-  List<TaskInfo>? _tasks;
-  final ReceivePort _port = ReceivePort();
+  //Notification Handlers
+  fetchNewTestimonyNotifications(List<Testimony> _testimonies) async {
+    final now = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    for (int i = 0; i < _testimonies.length; i++) {
+      final testimony = _testimonies[i];
+      bool exists = prefs.containsKey(testimony.uuid);
 
-  final resources = ResourcesApi();
-  void bindBackgroundIsolate() {
-    final isSuccess = IsolateNameServer.registerPortWithName(
-      _port.sendPort,
-      'downloader_send_port',
-    );
-    if (!isSuccess) {
-      unbindBackgroundIsolate();
-      bindBackgroundIsolate();
-      return;
+      String timeText = testimony.createdAt;
+      final DateFormat dateFormate = DateFormat('MM/dd/yyyy hh:mm a');
+      final newdate = dateFormate.parse(timeText);
+      final Duration timeDuration = now.difference(newdate);
+      int daysDifference = timeDuration.inDays;
+
+      if (!exists && daysDifference <= 7) {
+        final newTestimonyNotification = Notifications(
+            id: testimony.uuid,
+            message: testimony.title,
+            type: 'testimony',
+            createdAt: testimony.createdAt,
+            object: testimony);
+        print("TESTIMONY .. ${testimony.title} is a new one!!");
+        final String nullNotification = Notifications().toString();
+
+        Notifications? n = _notificationList.firstWhere(
+            (item) =>
+                item.id == newTestimonyNotification.id &&
+                item.message == newTestimonyNotification.message &&
+                item.createdAt == newTestimonyNotification.createdAt,
+            orElse: () => Notifications());
+        if (n.toString() == nullNotification) {
+          _notificationList.add(newTestimonyNotification);
+          print(
+              "NOTIFICATION HAS BEEN ADDED THAT ID IS .. ${newTestimonyNotification.id}");
+          notifyListeners();
+        }
+      } else {}
     }
-    _port.listen((dynamic data) {
-      final taskId = (data as List<dynamic>)[0] as String;
-      final status = data[1] as DownloadTaskStatus;
-      final progress = data[2] as int;
-
-      print(
-        'Callback on UI isolate: '
-        'task ($taskId) is in status ($status) and process ($progress)',
-      );
-      currentDownloadId = taskId;
-      setDownloading(true);
-      setProgressString("${progress.toString()}%");
-
-      if (progress == -1) {
-        setProgressString("Failed");
-        resources.deleteDownload(taskId);
-        currentDownloadId = null;
-        Future.delayed(Duration(milliseconds: 1500), () {
-          setDownloading(false);
-        });
-
-        print("Download has finished and is saved at ");
-      }
-
-      if (status == DownloadTaskStatus.complete) {
-        setProgressString("Completed");
-        currentDownloadId = null;
-        Future.delayed(Duration(milliseconds: 1500), () {
-          setDownloading(false);
-        });
-
-        print("Download has finished and is saved at ");
-      }
-
-      if (_tasks != null && _tasks!.isNotEmpty) {
-        final task = _tasks!.firstWhere((task) => task.taskId == taskId);
-
-        task
-          ..status = status
-          ..progress = progress;
-        notifyListeners();
-      }
-    });
   }
 
-  void unbindBackgroundIsolate() {
-    IsolateNameServer.removePortNameMapping('downloader_send_port');
+  cacheTestimony(Testimony t) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("${t.uuid}", "saved");
+    _notificationList.removeWhere((item) =>
+        item.id == t.uuid &&
+        item.message == t.title &&
+        item.createdAt == t.createdAt);
+    // Notifications? n = notificationList.firstWhere(
+    //     (item) =>
+    //         item.id == t.uuid &&
+    //         item.message == t.title &&
+    //         item.createdAt == t.createdAt,
+    //     orElse: () => Notifications());
+    //n.readAt = DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
+    //notificationList.remove(Notifications(id: t.uuid));
+
+    notifyListeners();
   }
 
-  @pragma('vm:entry-point')
-  static void downloadCallback(
-    String id,
-    DownloadTaskStatus status,
-    int progress,
-  ) {
-    print(
-      'Callback on background isolate: '
-      'task ($id) is in status ($status) and process ($progress)',
-    );
+  fetchNewEventNotifications(List<Event> _events) async {
+    final now = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    for (int i = 0; i < _events.length; i++) {
+      final event = _events[i];
+      bool exists = prefs.containsKey(event.uuid);
 
-    IsolateNameServer.lookupPortByName('downloader_send_port')
-        ?.send([id, status, progress]);
+      String timeText = event.createdAt!;
+      final DateFormat dateFormate = DateFormat('MM/dd/yyyy hh:mm a');
+      final newdate = dateFormate.parse(timeText);
+      final Duration timeDuration = now.difference(newdate);
+      int daysDifference = timeDuration.inDays;
+
+      if (!exists && daysDifference <= 31) {
+        final newEventNotification = Notifications(
+            id: event.uuid,
+            message: event.title,
+            type: 'event',
+            createdAt: event.createdAt,
+            object: event);
+        print("EVENT .. ${event.title} is a new one!!");
+        final String nullNotification = Notifications().toString();
+
+        Notifications? n = _notificationList.firstWhere(
+            (item) =>
+                item.id == newEventNotification.id &&
+                item.message == newEventNotification.message &&
+                item.createdAt == newEventNotification.createdAt,
+            orElse: () => Notifications());
+        if (n.toString() == nullNotification) {
+          _notificationList.add(newEventNotification);
+          print(
+              "NOTIFICATION HAS BEEN ADDED THAT ID IS .. ${newEventNotification.id}");
+          notifyListeners();
+        }
+      } else {}
+    }
+  }
+
+  cacheEvent(Event e) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("${e.uuid}", "saved");
+    _notificationList.removeWhere((item) =>
+        item.id == e.uuid &&
+        item.message == e.title &&
+        item.createdAt == e.createdAt);
+    // Notifications? n = notificationList.firstWhere(
+    //     (item) =>
+    //         item.id == t.uuid &&
+    //         item.message == t.title &&
+    //         item.createdAt == t.createdAt,
+    //     orElse: () => Notifications());
+    //n.readAt = DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
+    //notificationList.remove(Notifications(id: t.uuid));
+
+    notifyListeners();
   }
 }

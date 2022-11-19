@@ -38,8 +38,26 @@ class _HomePageState extends State<HomePage> {
   int _currentCarouselIndex = 0;
   final ytApi = YoutubeApi.instance;
 
+  Future<List<Testimony>> getTestimonies() async {
+    List<Testimony> testimonyList = await testiApi.getTestimonies();
+    _listProvider.setTestimoniesList(testimonyList);
+    Provider.of<AppProvider>(context, listen: false)
+        .fetchNewTestimonyNotifications(testimonyList);
+
+    return testimonyList;
+  }
+
+  Future<List<Event>> getEvents() async {
+    List<Event> eventList = await eventApi.getEvents();
+    _listProvider.setEventsList(eventList);
+    Provider.of<AppProvider>(context, listen: false)
+        .fetchNewEventNotifications(eventList);
+    return eventList;
+  }
+
   @override
   void didChangeDependencies() {
+    print("dependendencies have changed");
     _listProvider = Provider.of<AppProvider>(context, listen: false);
     Provider.of<AppProvider>(context, listen: false).setPreferences();
     Provider.of<AppProvider>(context, listen: false).setNotificationList();
@@ -76,8 +94,8 @@ class _HomePageState extends State<HomePage> {
             future: Future.wait(
               [
                 bibleApi.dailyVerse(),
-                testiApi.getTestimonies(),
-                eventApi.getEvents(),
+                getTestimonies(),
+                getEvents(),
               ],
             ),
             builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
@@ -119,14 +137,6 @@ class _HomePageState extends State<HomePage> {
               List<Testimony> testiList = snapshot.data![1];
               List<Event> eventList = snapshot.data![2];
 
-              // Provider.of<AppProvider>(context, listen: false)
-              //           .selectChannel(_channel!);
-              //       Video video = _channel!.videos![index]
-
-              Future.delayed(Duration(milliseconds: 500), () {
-                _listProvider.setTestimoniesList(testiList);
-                _listProvider.setEventsList(eventList);
-              });
               final List<Widget> messageList = List.generate(5, (index) {
                 Video? video = Provider.of<AppProvider>(context, listen: true)
                         .selectedVideoList
@@ -134,7 +144,6 @@ class _HomePageState extends State<HomePage> {
                     ? null
                     : Provider.of<AppProvider>(context, listen: true)
                         .selectedVideoList[index];
-
                 return GestureDetector(
                   onTap: () async {
                     Provider.of<AppProvider>(context, listen: false).goToTab(1);

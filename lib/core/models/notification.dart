@@ -4,8 +4,15 @@ class Notifications {
   String? message;
   String? readAt;
   String? createdAt;
+  var object;
 
-  Notifications({this.id, this.message, this.type, this.readAt, this.createdAt});
+  Notifications(
+      {this.id,
+      this.message,
+      this.type,
+      this.readAt,
+      this.createdAt,
+      this.object});
 
   @override
   String toString() {

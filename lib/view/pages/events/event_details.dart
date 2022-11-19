@@ -22,6 +22,11 @@ class EventDetails extends StatelessWidget {
       dateList.add(day);
     }
     print('listlegthis... ${event.endDate}');
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   Provider.of<AppProvider>(context, listen: false).cacheEvent(event);
+    // });
+
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBarWidget(

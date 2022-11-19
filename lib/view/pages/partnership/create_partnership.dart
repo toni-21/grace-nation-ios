@@ -363,7 +363,6 @@ class _CreatePartnershipState extends State<CreatePartnership> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBarWidget(
         actionScreen: true,

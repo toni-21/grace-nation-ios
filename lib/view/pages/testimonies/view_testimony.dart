@@ -24,8 +24,13 @@ class ViewTestimony extends StatelessWidget {
     final newdate = dateFormate.parse(timeText);
     final Duration timeDuration = DateTime.now().difference(newdate);
     final String timeAgo = ('${timeDuration.inDays} days ago');
-
     print(timeAgo);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AppProvider>(context, listen: false)
+          .cacheTestimony(testimony);
+    });
+
     return Scaffold(
         appBar: AppBarWidget(
           appBar: AppBar(),
@@ -69,7 +74,7 @@ class ViewTestimony extends StatelessWidget {
                       children: [
                         ImageIcon(
                           AssetImage('assets/icons/user-tag.png'),
-                         // color: Colors.black,
+                          // color: Colors.black,
                         ),
                         SizedBox(width: 2),
                         Column(
@@ -101,7 +106,7 @@ class ViewTestimony extends StatelessWidget {
                       //  _loremIpsumParagraph,
                       testimony.description,
                       style: TextStyle(
-                       // color: Colors.black54,
+                        // color: Colors.black54,
                         height: 1.5,
                         fontSize: 14,
                       ),
