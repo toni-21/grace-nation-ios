@@ -19,12 +19,19 @@ class GivingPayment {
     final prefs = await SharedPreferences.getInstance();
     String accessToken = prefs.getString('accessToken') ?? "";
     print(accessToken);
-    Map<String, dynamic> body = {
-      "amount": amount,
-      "currency": currency,
-      "giving_type_id": givingTypeId,
-      "member_id": memberId
-    };
+    Map<String, dynamic> body =
+        (memberId == null || memberId == "" || memberId.length < 2)
+            ? {
+                "amount": amount,
+                "currency": currency,
+                "giving_type_id": givingTypeId,
+              }
+            : {
+                "amount": amount,
+                "currency": currency,
+                "giving_type_id": givingTypeId,
+                "member_id": memberId
+              };
     Map<String, String> requestHeaders = {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",

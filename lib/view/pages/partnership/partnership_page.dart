@@ -123,9 +123,8 @@ class _PartnershipPageState extends State<PartnershipPage>
                 onPressed: () {
                   String str = Provider.of<AppProvider>(context, listen: false)
                       .preferences
-                      .whatsappNumber!
-                      .split('0')
-                      .last;
+                      .whatsappNumber!;
+
                   _launchUrl('whatsapp://send?phone=$str');
                 },
                 style: TextButton.styleFrom(
@@ -155,7 +154,7 @@ class _PartnershipPageState extends State<PartnershipPage>
               TextButton(
                 onPressed: () {
                   _launchUrl(
-                      'tel:${Provider.of<AppProvider>(context, listen: false).preferences.whatsappNumber}');
+                      'tel:${Provider.of<AppProvider>(context, listen: false).preferences.supportNumber}');
                 },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,

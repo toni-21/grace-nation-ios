@@ -57,10 +57,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void didChangeDependencies() {
-    print("dependendencies have changed");
     _listProvider = Provider.of<AppProvider>(context, listen: false);
     Provider.of<AppProvider>(context, listen: false).setPreferences();
-    Provider.of<AppProvider>(context, listen: false).setNotificationList();
+    //Provider.of<AppProvider>(context, listen: false).setNotificationList();
     super.didChangeDependencies();
   }
 

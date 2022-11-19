@@ -350,6 +350,7 @@ class AppProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     for (int i = 0; i < _testimonies.length; i++) {
       final testimony = _testimonies[i];
+      prefs.remove(testimony.uuid);
       bool exists = prefs.containsKey(testimony.uuid);
 
       String timeText = testimony.createdAt;
@@ -409,6 +410,7 @@ class AppProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     for (int i = 0; i < _events.length; i++) {
       final event = _events[i];
+      prefs.remove(event.uuid);
       bool exists = prefs.containsKey(event.uuid);
 
       String timeText = event.createdAt!;
@@ -440,9 +442,8 @@ class AppProvider extends ChangeNotifier {
           notifyListeners();
         }
       } else {}
-
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   cacheEvent(Event e) async {
