@@ -52,11 +52,7 @@ class _SecurityState extends State<Security>
   }
 
   void _submitForm(BuildContext context) async {
-    setState(() {
-      _isLoading = true;
-    });
     FocusScopeNode currentFocus = FocusScope.of(context);
-
     if (!currentFocus.hasPrimaryFocus) {
       currentFocus.unfocus();
     }
@@ -64,6 +60,9 @@ class _SecurityState extends State<Security>
     if (!_formKey.currentState!.validate()) {
       return;
     } else {
+      setState(() {
+        _isLoading = true;
+      });
       String response = await authApi.changePassword(
         oldPassword: oldPasswordController.text,
         newPassword: newPasswordController.text,
