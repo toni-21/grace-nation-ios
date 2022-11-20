@@ -63,12 +63,10 @@ class _GiveScreenState extends State<GiveScreen> {
       DropDownValueModel model =
           DropDownValueModel(name: type.name, value: type.id);
       givingTypeList.add(model);
-      setState(() {
-        selectedGivingTypeId = 0;
-      });
     }
     print("DONE with support types");
     setState(() {
+      selectedGivingTypeId = givingTypeList[0].value;
       _isLoading = false;
     });
   }
@@ -226,7 +224,8 @@ class _GiveScreenState extends State<GiveScreen> {
             }
             return;
           } else {
-            print(value);
+            final newValue = (value as DropDownValueModel).value;
+            print("changing value is ${newValue}");
             if (paymentType == false) {
               setState(() {
                 selectedGivingTypeId = value.value;
@@ -234,7 +233,7 @@ class _GiveScreenState extends State<GiveScreen> {
               });
             } else {
               setState(() {
-                partnerType == PaymentType.offline
+                newValue == 'online'
                     ? partnerType = PaymentType.online
                     : partnerType = PaymentType.offline;
               });
