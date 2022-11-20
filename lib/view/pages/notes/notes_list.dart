@@ -34,6 +34,7 @@ class NotesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final prov = Provider.of<AppProvider>(context, listen: false);
+    final reversedList = List.from(prov.noteList.reversed);
     return Container(
       color: Theme.of(context).backgroundColor,
       child: Stack(
@@ -44,7 +45,7 @@ class NotesList extends StatelessWidget {
               physics: BouncingScrollPhysics(),
               padding: EdgeInsets.only(bottom: 64),
               itemBuilder: (BuildContext context, int index) {
-                Note note = prov.noteList[index];
+                Note note = reversedList[index];
                 return ListTile(
                   horizontalTitleGap: 0,
                   minVerticalPadding: 0,
