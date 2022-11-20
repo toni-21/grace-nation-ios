@@ -50,7 +50,9 @@ class EventDetails extends StatelessWidget {
               //             )
               //           : null),
               // ),
-              Image.network(event.coverImage!.url!),
+              event.coverImage != null
+                  ? Image.network(event.coverImage!.url!)
+                  : Container(),
               Padding(
                 padding: const EdgeInsets.only(left: 24, right: 24),
                 child: Column(
