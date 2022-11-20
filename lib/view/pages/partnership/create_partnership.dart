@@ -237,6 +237,7 @@ class _CreatePartnershipState extends State<CreatePartnership> {
           color: deepBlue,
         ),
         clearIconProperty: IconProperty(color: deepBlue),
+        clearOption: false,
         dropDownList: list,
         dropDownItemCount: list.length,
         onChanged: ((value) {
@@ -244,6 +245,11 @@ class _CreatePartnershipState extends State<CreatePartnership> {
             if (type == CreateFormType.currency) {
               setState(() {
                 selectedCurrency = "NGN";
+              });
+            } else if (type == CreateFormType.paymenttype) {
+              setState(() {
+                selectedPaymentOption = 'online';
+                offlinePaying = false;
               });
             }
             return;

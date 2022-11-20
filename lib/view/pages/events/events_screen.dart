@@ -42,7 +42,7 @@ class _EventsScreenState extends State<EventsScreen> {
               image: event.coverImage != null
                   ? DecorationImage(
                       image: NetworkImage(event.coverImage!.url!),
-                      fit: BoxFit.fitHeight,
+                      fit: BoxFit.fill,
                     )
                   : null),
           child: Column(

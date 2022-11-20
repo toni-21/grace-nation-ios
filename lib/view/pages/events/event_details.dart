@@ -38,18 +38,19 @@ class EventDetails extends StatelessWidget {
         body: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              Container(
-                height: 500,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColorDark.withOpacity(0.05),
-                    image: event.coverImage != null
-                        ? DecorationImage(
-                            image: NetworkImage(event.coverImage!.url!),
-                            fit: BoxFit.fitHeight,
-                          )
-                        : null),
-              ),
+              // Container(
+              //   //   height: 500,
+              //   width: double.infinity,
+              //   decoration: BoxDecoration(
+              //       color: Theme.of(context).primaryColorDark.withOpacity(0.05),
+              //       image: event.coverImage != null
+              //           ? DecorationImage(
+              //               image: NetworkImage(event.coverImage!.url!)
+              //               //   fit: BoxFit.fill,
+              //             )
+              //           : null),
+              // ),
+              Image.network(event.coverImage!.url!),
               Padding(
                 padding: const EdgeInsets.only(left: 24, right: 24),
                 child: Column(

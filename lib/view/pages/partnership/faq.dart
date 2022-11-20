@@ -6,10 +6,35 @@ import 'package:grace_nation/view/shared/widgets/appbar.dart';
 import 'package:grace_nation/view/shared/widgets/custom_collapsable.dart';
 
 class FAQ extends StatelessWidget {
+  Widget bulletItems(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '●\t',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: false,
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBarWidget(
           actionScreen: true,
@@ -89,18 +114,39 @@ class FAQ extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                child: Text(
-                  '''\nRegular update of ministry activities, outreaches and other events'''
-                  '''\nFree  Access to some online ministry materials such as messages, e-books and copies of daily devotionals.'''
-                  '''\nInvitation to the annual KCP awards and dinner with senior pastor'''
-                  '''\nPartnership acknowledgment certificate'''
-                  '''\nAnniversary messages from or on behalf of the Senior Pastor.'''
-                  '''\nAnnual Ministry Gift from Senior Pastor.''',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    bulletItems(
+                        'Regular update of ministry activities, outreaches and other events.'),
+                    SizedBox(height: 7.5),
+                    bulletItems(
+                        'Free  Access to some online ministry materials such as messages, e-books and copies of daily devotionals.'),
+                    SizedBox(height: 7.5),
+                    bulletItems(
+                        'Invitation to the annual KCP awards and dinner with senior pastor.'),
+                    SizedBox(height: 7.5),
+                    bulletItems('Partnership Acknowledgment Certificate.'),
+                    SizedBox(height: 7.5),
+                    bulletItems(
+                        'Anniversary messages from or on behalf of the Senior Pastor.'),
+                    SizedBox(height: 7.5),
+                    bulletItems('Annual Ministry Gift from Senior Pastor.')
+                  ],
                 ),
+                // child: Text(
+                //   '''\n●\tRegular update of ministry activities, outreaches and other events.'''
+                //   '''\n\n●\tFree  Access to some online ministry materials such as messages, e-books and copies of daily devotionals.'''
+                //   '''\n\n●\tInvitation to the annual KCP awards and dinner with senior pastor'''
+                //   '''\n\n●\tPartnership acknowledgment certificate'''
+                //   '''\n\n●\tAnniversary messages from or on behalf of the Senior Pastor.'''
+                //   '''\n\n●\tAnnual Ministry Gift from Senior Pastor.''',
+                //   style: TextStyle(
+                //     height: 0.88,
+                //     fontSize: 14,
+                //     fontWeight: FontWeight.w400,
+                //   ),
+                // ),
               ),
               SizedBox(height: 25),
             ],

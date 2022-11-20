@@ -105,29 +105,6 @@ class _AccessibleDetailsState extends State<AccessibleDetails>
       appBar: AppBarWidget(
         actionScreen: true,
         title: 'Account Details',
-        actions: IconButton(
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return ConfirmationWidget(
-                        title: "Return to Home page",
-                        description:
-                            "Do you wish to cancel partnership and return to homepage?",
-                        callback: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                            return PartnershipPage();
-                          }));
-                        },
-                        actionText: "Yes",
-                        exitText: "No");
-                  });
-            },
-            icon: Icon(Icons.close,
-                size: 30, color: white //Color.fromARGB(255, 158, 31, 22),
-                )),
         appBar: AppBar(),
       ),
       body: (nairaDetails == null || usdDetails == null)
