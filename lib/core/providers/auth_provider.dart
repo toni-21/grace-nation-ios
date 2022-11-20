@@ -23,6 +23,12 @@ class AuthProvider extends ChangeNotifier {
     return _isLoading;
   }
 
+  Future<String?> getAvatarPath() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? path = prefs.getString('avatar-path');
+    return path;
+  }
+
   Future<String> verify({
     required int otp,
     required String email,

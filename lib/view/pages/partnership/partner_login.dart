@@ -8,6 +8,7 @@ import 'package:grace_nation/core/providers/auth_provider.dart';
 import 'package:grace_nation/core/services/authentication.dart';
 import 'package:grace_nation/utils/constants.dart';
 import 'package:grace_nation/utils/styles.dart';
+import 'package:grace_nation/view/pages/partnership/verify_account.dart';
 import 'package:grace_nation/view/shared/screens/drawer.dart';
 import 'package:grace_nation/view/shared/widgets/appbar.dart';
 import 'package:grace_nation/view/shared/widgets/custom_button.dart';
@@ -348,7 +349,7 @@ class _PartnerLoginState extends State<PartnerLogin>
                         ),
                         TextButton(
                           onPressed: () {
-                          context.goNamed(resetPasswordRouteName);
+                            context.goNamed(resetPasswordRouteName);
                             //_resetPassword();
                           },
                           child: Text(
@@ -378,7 +379,11 @@ class _PartnerLoginState extends State<PartnerLogin>
                         ),
                         TextButton(
                           onPressed: () {
-                            context.goNamed(verifyAccountRouteName);
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      VerifyAccount()),
+                            );
                           },
                           child: Text(
                             'Click Here',

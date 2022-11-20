@@ -8,6 +8,7 @@ import 'package:grace_nation/core/providers/auth_provider.dart';
 import 'package:grace_nation/core/services/authentication.dart';
 import 'package:grace_nation/utils/constants.dart';
 import 'package:grace_nation/utils/styles.dart';
+import 'package:grace_nation/view/pages/partnership/partner_login.dart';
 import 'package:grace_nation/view/shared/widgets/appbar.dart';
 import 'package:grace_nation/view/shared/widgets/custom_button.dart';
 import 'package:grace_nation/view/shared/widgets/failure_widget.dart';
@@ -46,7 +47,8 @@ class _VerifyAccountState extends State<VerifyAccount>
   void initState() {
     super.initState();
     setState(() {
-      emailController.text = Provider.of<AuthProvider>(context,listen: false).currentEmail;
+      emailController.text =
+          Provider.of<AuthProvider>(context, listen: false).currentEmail;
     });
 
     controller =
@@ -78,7 +80,9 @@ class _VerifyAccountState extends State<VerifyAccount>
 
   @override
   void dispose() {
-    countdownTimer!.cancel();
+    if (countdownTimer != null) {
+      countdownTimer!.cancel();
+    }
     super.dispose();
   }
 
@@ -120,8 +124,14 @@ class _VerifyAccountState extends State<VerifyAccount>
         .verify(otp: int.parse(completeString), email: emailController.text);
 
     if (response == 'success') {
-      Timer(Duration(milliseconds: 2400),
-          () => context.goNamed(partnerLoginRouteName));
+      Timer(Duration(milliseconds: 2400), () {
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+                builder: (BuildContext context) => PartnerLogin()),
+          );
+        }
+      });
       showGeneralDialog(
         context: context,
         barrierLabel: "Barrier",
@@ -135,7 +145,10 @@ class _VerifyAccountState extends State<VerifyAccount>
                     title: 'Verification Successful',
                     description: 'Your account has been verified',
                     callback: () {
-                      context.goNamed(partnerLoginRouteName);
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => PartnerLogin()),
+                      );
                     }));
           });
         },

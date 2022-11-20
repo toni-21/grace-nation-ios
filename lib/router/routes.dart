@@ -45,7 +45,6 @@ class MyRouter {
 
   // 2
   late final router = GoRouter(
-  
     // 3
     refreshListenable: loginState,
     // 4
@@ -249,6 +248,12 @@ class MyRouter {
 
       //PARTNERSHIP ROUTINGS
       GoRoute(
+        name: verifyAccountRouteName,
+        path: '/verifyAccount',
+        pageBuilder: (context, state) =>
+            MaterialPage<void>(key: state.pageKey, child: VerifyAccount()),
+      ),
+      GoRoute(
           name: partnerLoginRouteName,
           path: '/partnerLogin',
           pageBuilder: (context, state) => MaterialPage<void>(
@@ -265,12 +270,6 @@ class MyRouter {
             }
           },
           routes: [
-            GoRoute(
-              name: verifyAccountRouteName,
-              path: 'verifyAccount',
-              pageBuilder: (context, state) => MaterialPage<void>(
-                  key: state.pageKey, child: VerifyAccount()),
-            ),
             GoRoute(
               name: setNewPasswordRouteName,
               path: 'setNewPassword',

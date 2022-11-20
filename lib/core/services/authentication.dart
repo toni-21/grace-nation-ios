@@ -346,7 +346,9 @@ class AuthApi {
   Future<String> updateAvatar({required PlatformFile file}) async {
     final prefs = await SharedPreferences.getInstance();
     String accessToken = prefs.getString('accessToken') ?? "";
-
+    if (file.path != null) {
+      prefs.setString('avatar-path', file.path!);
+    }
     Map<String, String> requestHeaders = {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",

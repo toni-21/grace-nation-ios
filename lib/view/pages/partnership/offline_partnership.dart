@@ -246,8 +246,9 @@ class _OfflinePartnershipState extends State<OfflinePartnership>
                               description:
                                   "Do you wish to cancel partnership and return to homepage?",
                               callback: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (BuildContext context) {
+                                Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) {
                                   return PartnershipPage();
                                 }));
                               },
