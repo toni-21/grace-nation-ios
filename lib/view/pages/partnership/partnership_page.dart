@@ -70,7 +70,7 @@ class _PartnershipPageState extends State<PartnershipPage>
     Map<String, dynamic> p = await partnerApi.listPartnerships();
 
     print("P IS $p");
-    List data = p["data"];
+    List data = p["data"] ?? [];
     List<Partnership> partness = [];
     for (int i = 0; i < data.length; i++) {
       Partnership partnership = Partnership.fromJson(data[i]);

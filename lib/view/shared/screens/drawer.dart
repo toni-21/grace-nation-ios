@@ -300,7 +300,7 @@ class _AppDrawerState extends State<AppDrawer> {
                               Provider.of<AppProvider>(context, listen: false)
                                       .getSelectedDrawer ==
                                   9,
-                          text: 'Bible',
+                          text: 'Live Chat',
                           context: context,
                           onTap: () {
                             setState(() {

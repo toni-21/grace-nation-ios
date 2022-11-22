@@ -81,6 +81,28 @@ class _CreatePartnershipState extends State<CreatePartnership> {
               description: "Please return and complete all the details");
         },
       );
+    } else if (selectedAmount < 5000 &&
+        selectedCurrency == "NGN" &&
+        selectedPaymentOption == "online") {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWidget(
+              title: 'Inaccurate Details',
+              description: "Naira amount must not be less than 5000");
+        },
+      );
+    } else if (selectedAmount < 10 &&
+        selectedCurrency == "USD" &&
+        selectedPaymentOption == "online") {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWidget(
+              title: 'Inaccurate Details',
+              description: "Dollar amount must not be less than 10");
+        },
+      );
     } else {
       Provider.of<AppProvider>(context, listen: false).initPayment(
         PaymentInit(
@@ -321,7 +343,7 @@ class _CreatePartnershipState extends State<CreatePartnership> {
         Expanded(
           child: SizedBox(
             height: 40,
-            child: TextField(
+            child: TextFormField(
               keyboardType: TextInputType.number,
               controller: _amountController,
               decoration: InputDecoration(

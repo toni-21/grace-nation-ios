@@ -74,7 +74,7 @@ class _BibleScreenState extends State<BibleScreen> {
       webViewController?.loadUrl(
           urlRequest: URLRequest(url: await webViewController?.getUrl()));
     }
-    Future.delayed(Duration(milliseconds: 1200), () {
+    Future.delayed(Duration(milliseconds: 3600), () {
       setState(() {
         pageLoaded = false;
       });
@@ -102,8 +102,8 @@ class _BibleScreenState extends State<BibleScreen> {
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         resizeToAvoidBottomInset: false,
-        appBar:
-            AppBarWidget(actionScreen: false, appBar: AppBar(), title: 'Bible'),
+        appBar: AppBarWidget(
+            actionScreen: false, appBar: AppBar(), title: 'Live Chat'),
         drawer: AppDrawer(),
         body: SafeArea(
           child: Stack(
@@ -113,10 +113,14 @@ class _BibleScreenState extends State<BibleScreen> {
                 width: MediaQuery.of(context).size.width,
                 child: InAppWebView(
                   initialOptions: options,
-                  initialData: InAppWebViewInitialData(
-                    data: bible,
-                    encoding: 'utf-8',
-                    mimeType: 'text/html',
+                  // initialData: InAppWebViewInitialData(
+                  //   data: bible,
+                  //   encoding: 'utf-8',
+                  //   mimeType: 'text/html',
+                  // ),
+                  initialUrlRequest: URLRequest(
+                    url: Uri.parse(
+                        'https://tawk.to/chat/637a241ddaff0e1306d86976/1giahq55j'),
                   ),
                   pullToRefreshController: pullToRefreshController,
                   onWebViewCreated: (controller) {
@@ -161,10 +165,6 @@ class _BibleScreenState extends State<BibleScreen> {
                       this.url = url.toString();
                       urlController.text = this.url;
                     });
-                    await controller.injectJavascriptFileFromUrl(
-                      urlFile:
-                          Uri.parse('https://biblia.com/api/logos.biblia.js'),
-                    );
                   },
                   onLoadError: (controller, url, code, message) {
                     pullToRefreshController.endRefreshing();

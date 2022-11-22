@@ -45,7 +45,7 @@ class AppConfig {
   static const channelId = "UCePZkMO8KURFX34jvJwXhzQ";
   static const okaforPlaylistlId = "UUePZkMO8KURFX34jvJwXhzQ";
 
-  static const host = "https://staging-api.gracenationoffice.com/api/v1";
+  static const host = "https://prod-api.gracenationoffice.com/api/v1";
   static const signup = "$host/auth/signup/partner";
   static const login = "$host/auth/signin";
   static const signout = "$host/auth/signout";

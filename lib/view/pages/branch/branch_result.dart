@@ -84,7 +84,7 @@ class BranchResult extends StatelessWidget {
                             child: Text(
                               //'12, Oyinkan Abayomi Drive, more address space Ojodu, Lagos, Ikeja, UEY Drive, Lagos. Nigeria. ',
                               branch.address,
-                              maxLines: 2,
+                              maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 // color: Colors.black,
@@ -93,6 +93,16 @@ class BranchResult extends StatelessWidget {
                               ),
                             ),
                           ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 7.5, right: 5),
+                            child: InkWell(
+                              child: Icon(
+                                Icons.location_on_sharp,
+                                size: 36,
+                                color: babyBlue,
+                              ),
+                            ),
+                          )
                         ],
                       ),
                       Row(
@@ -134,17 +144,6 @@ class BranchResult extends StatelessWidget {
               width: 10,
               height: 33,
               color: babyBlue,
-            ),
-          ),
-          Positioned(
-            top: 25,
-            right: 18,
-            child: InkWell(
-              child: Icon(
-                Icons.location_on_sharp,
-                size: 30,
-                color: babyBlue,
-              ),
             ),
           ),
         ]));

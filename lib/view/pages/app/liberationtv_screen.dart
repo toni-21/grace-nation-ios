@@ -32,7 +32,6 @@ class _LiberationTVScreenState extends State<LiberationTVScreen> {
       // userAgent: userAgent,
       cacheEnabled: true,
       useOnLoadResource: true,
-
       javaScriptCanOpenWindowsAutomatically: true,
       javaScriptEnabled: true,
       mediaPlaybackRequiresUserGesture: false,
@@ -439,7 +438,7 @@ class _LiberationTVScreenState extends State<LiberationTVScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Theme.of(context).backgroundColor,
@@ -593,7 +592,7 @@ class _LiberationTVScreenState extends State<LiberationTVScreen> {
                               EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                           margin: EdgeInsets.only(bottom: 2, top: 2),
                           child: Text(
-                            'Bible',
+                            'Prayer Request',
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 12,
@@ -603,29 +602,29 @@ class _LiberationTVScreenState extends State<LiberationTVScreen> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 7.5, right: 10),
-                      child: Material(
-                        color: currentIndex != 2
-                            ? Theme.of(context).hoverColor
-                            : null,
-                        elevation: currentIndex == 2 ? 5 : 0,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(12),
-                        ),
-                        child: Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 13, vertical: 8),
-                          margin: EdgeInsets.only(bottom: 2, top: 2),
-                          child: Text(
-                            'Prayer Request',
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontSize: 11.5, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: EdgeInsets.only(bottom: 7.5, right: 10),
+                    //   child: Material(
+                    //     color: currentIndex != 2
+                    //         ? Theme.of(context).hoverColor
+                    //         : null,
+                    //     elevation: currentIndex == 2 ? 5 : 0,
+                    //     borderRadius: BorderRadius.all(
+                    //       Radius.circular(12),
+                    //     ),
+                    //     child: Container(
+                    //       padding:
+                    //           EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+                    //       margin: EdgeInsets.only(bottom: 2, top: 2),
+                    //       child: Text(
+                    //         'Prayer Request',
+                    //         overflow: TextOverflow.ellipsis,
+                    //         style: TextStyle(
+                    //             fontSize: 11.5, fontWeight: FontWeight.w600),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -640,110 +639,6 @@ class _LiberationTVScreenState extends State<LiberationTVScreen> {
                   // first tab bar view widget
                   Notes(),
                   // second tab bar view widget
-
-                  Container(
-                    height: 600,
-                    width: MediaQuery.of(context).size.width,
-                    child: Stack(
-                      children: [
-                        InAppWebView(
-                          //     key: webViewKey,
-                          initialOptions: options,
-                          //   initialUrlRequest: URLRequest(
-                          //   url:
-                          //       Uri.parse("https://biblia.com/plugins/embeddedbible"),
-                          // ),
-                          initialData: InAppWebViewInitialData(
-                            data: bible,
-                            // baseUrl: Uri.parse(
-                            //     'https://biblia.com/plugins/embeddedbible'),
-                            encoding: 'utf-8',
-                            mimeType: 'text/html',
-                          ),
-                          pullToRefreshController: pullToRefreshController,
-                          onWebViewCreated: (controller) {
-                            print('CREATED BIBLE!');
-                            webViewController = controller;
-                          },
-                          onLoadStart: (controller, url) {
-                            setState(() {
-                              this.url = url.toString();
-                              urlController.text = this.url;
-                            });
-                          },
-                          androidOnPermissionRequest:
-                              (controller, origin, resources) async {
-                            return PermissionRequestResponse(
-                                resources: resources,
-                                action: PermissionRequestResponseAction.GRANT);
-                          },
-                          shouldOverrideUrlLoading:
-                              (controller, navigationAction) async {
-                            var uri = navigationAction.request.url!;
-
-                            if (![
-                              "http",
-                              "https",
-                              "file",
-                              "chrome",
-                              "data",
-                              "javascript",
-                              "about"
-                            ].contains(uri.scheme)) {
-                              await _launchUrl(url);
-                              // and cancel the request
-                              return NavigationActionPolicy.CANCEL;
-                            }
-
-                            return NavigationActionPolicy.ALLOW;
-                          },
-                          onLoadStop: (controller, url) async {
-                            pullToRefreshController.endRefreshing();
-                            setState(() {
-                              this.url = url.toString();
-                              urlController.text = this.url;
-                            });
-                          },
-                          onLoadError: (controller, url, code, message) {
-                            pullToRefreshController.endRefreshing();
-                          },
-                          onProgressChanged: (controller, progress) {
-                            if (progress == 100) {
-                              pullToRefreshController.endRefreshing();
-                            }
-                            setState(() {
-                              this.progress = progress / 100;
-                              urlController.text = this.url;
-                            });
-                          },
-                          onUpdateVisitedHistory:
-                              (controller, url, androidIsReload) {
-                            setState(() {
-                              this.url = url.toString();
-                              urlController.text = this.url;
-                            });
-                          },
-                          onConsoleMessage: (controller, consoleMessage) {
-                            print(consoleMessage);
-                          },
-                        ),
-                        pageLoaded
-                            ? Container(
-                                color: Colors.black.withOpacity(0.5),
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: babyBlue,
-                                  ),
-                                ))
-                            : Container()
-                      ],
-                    ),
-                    // progress < 1.0
-                    //     ? LinearProgressIndicator(value: progress)
-                    //     : Container(),
-                  ),
-
-                  // third tab bar view widget
                   prayerRequestPage(context)
                 ],
               ),
@@ -777,35 +672,6 @@ String get player => '''
     </head>
     <body>
     $iframeHttp
-    </body>
-    </html>
-  ''';
-
-String get bible => '''
-   <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            html,
-            body {
-                margin: 0;
-                padding: 0;
-                background-color: #FFFFFFF;
-                height: 100%;
-                width: 100%;
-            }
-        </style>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
-    </head>
-    <body>
-<iframe src="https://biblia.com/api/plugins/embeddedbible?layout=minimal&amp;width=400&amp;height=600&amp;historyButtons=false&amp;startingReference=Ge1.1&amp;resourceName=nkjv" width="100%" height="100% "></iframe>
-    <script>     
-        var frame = document.querySelector("iframe");
-        header = frame.contentDocument.querySelector("header");
-        header.remove();
-        footer = frame.contentDocument.querySelector("footer");
-        footer.remove();
-    </script>
     </body>
     </html>
   ''';

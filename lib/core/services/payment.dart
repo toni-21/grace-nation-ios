@@ -152,10 +152,10 @@ class PaymentApi {
       "Authorization": "Bearer $publicKey"
     };
 
-    //static const _PROD_BASE_URL = "https://api.ravepay.co/v3/sdkcheckout/";
-    String url =
-        'https://ravesandboxapi.flutterwave.com/v3/sdkcheckout/payments';
-    final uri = Uri.parse(url);
+    String prod_url = "https://api.ravepay.co/v3/sdkcheckout/payments";
+    // String url =
+    //     'https://ravesandboxapi.flutterwave.com/v3/sdkcheckout/payments';
+    final uri = Uri.parse(prod_url);
     try {
       final response = await client.post(
         uri,
