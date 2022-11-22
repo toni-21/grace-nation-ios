@@ -81,9 +81,7 @@ class _CreatePartnershipState extends State<CreatePartnership> {
               description: "Please return and complete all the details");
         },
       );
-    } else if (selectedAmount < 5000 &&
-        selectedCurrency == "NGN" &&
-        selectedPaymentOption == "online") {
+    } else if (selectedAmount < 5000 && selectedCurrency == "NGN") {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -92,9 +90,7 @@ class _CreatePartnershipState extends State<CreatePartnership> {
               description: "Naira amount must not be less than 5000");
         },
       );
-    } else if (selectedAmount < 10 &&
-        selectedCurrency == "USD" &&
-        selectedPaymentOption == "online") {
+    } else if (selectedAmount < 10 && selectedCurrency == "USD") {
       showDialog(
         context: context,
         builder: (BuildContext context) {

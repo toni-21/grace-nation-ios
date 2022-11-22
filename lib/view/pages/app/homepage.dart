@@ -556,13 +556,22 @@ class _HomePageState extends State<HomePage> {
                                     //Column
                                     direction: Axis.vertical,
                                     children: [
-                                      Text(
-                                        // 'Special Program with Pastor',
-                                        event.title,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
+                                      Container(
+                                        constraints: BoxConstraints(
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              1.5,
+                                        ),
+                                        child: Text(
+                                          //'Special Program with Pastor link ',
+                                          event.title,
+                                          overflow: TextOverflow.ellipsis,
+
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                       Row(children: [
