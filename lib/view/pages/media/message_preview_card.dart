@@ -1,24 +1,12 @@
-import 'dart:io';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:grace_nation/core/models/video.dart';
-import 'package:grace_nation/core/providers/app_provider.dart';
 import 'package:grace_nation/core/services/resources.dart';
 import 'package:grace_nation/router/custum_rect_tween.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:grace_nation/utils/constants.dart';
 import 'package:grace_nation/utils/styles.dart';
 import 'package:grace_nation/view/pages/media/video_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-const urlString =
-    "https://rr1---sn-ab5l6nkd.googlevideo.com/videoplayback?expire=1666119856&ei=UKROY7TXJs-7gwP11an4Dg&ip=165.227.196.134&id=o-ALbkF27ihCNt_jbE8WijlKSgraJxWC5KfOVbL0boF-sO&itag=18&source=youtube&requiressl=yes&mh=XN&mm=31%2C29&mn=sn-ab5l6nkd%2Csn-ab5sznze&ms=au%2Crdu&mv=m&mvi=1&pl=20&initcwndbps=545000&vprv=1&mime=video%2Fmp4&cnr=14&ratebypass=yes&dur=312.494&lmt=1659079469965726&mt=1666098069&fvip=4&fexp=24001373%2C24007246&c=ANDROID&txp=6318224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cvprv%2Cmime%2Ccnr%2Cratebypass%2Cdur%2Clmt&sig=AOq0QJ8wRAIgK3wEKDVZEkMZmBb-Sr-Na-ZhP6INOXA0zznxjgcgW_ACIH-Xd6QLWjsix7Gpkc_tBrFs4rKVwsFa1t5h2xJZizpN&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRQIhAPGD_VmTFgkYzL4JYmZMsLDJs9hsKM0mloPIhaLHnZffAiBjX5e6Eqj-PNnoRLI4ehREbK3hGxqVn8HlwId1aQrclA%3D%3D";
-const samplePath =
-    "/data/user/0/com.example.grace_nation/app_flutter/How God rescued me";
 
 class MessagePreviewCard extends StatefulWidget {
   final Video video;
@@ -34,8 +22,6 @@ class _MessagePreviewCardState extends State<MessagePreviewCard> {
   final resources = ResourcesApi();
   bool downloading = false;
   String progressString = "";
-
- 
 
   @override
   Widget build(BuildContext context) {

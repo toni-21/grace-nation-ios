@@ -1,4 +1,4 @@
-package com.example.grace_nation
+package com.gracenation.mobileapp
 
 import io.flutter.embedding.android.FlutterActivity
 

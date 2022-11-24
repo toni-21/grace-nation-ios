@@ -39,7 +39,7 @@ Future<void> main() async {
   _audioHandler = await AudioService.init(
     builder: () => AudioPlayerHandler(_audioProvider),
     config: AudioServiceConfig(
-      androidNotificationChannelId: 'com.example.grace_nation.channel.audio',
+      androidNotificationChannelId: 'com.gracenation.mobileapp.channel.audio',
       androidNotificationChannelName: 'Audio playback',
       androidNotificationOngoing: true,
     ),
