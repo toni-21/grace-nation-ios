@@ -50,23 +50,18 @@ class _DownloadScreenState extends State<DownloadScreen> {
     if (exists) {
       print("exits");
 
-      await thumbDirectory
-          .list(recursive: true, followLinks: false)
-          .listen((FileSystemEntity entity) async {
+      await thumbDirectory.list(recursive: true, followLinks: false).listen((FileSystemEntity entity) async {
         print("new thumb path is ${entity.path}");
         thumbList.add(entity as File);
       });
 
-      directory
-          .list(recursive: true, followLinks: false)
-          .listen((FileSystemEntity entity) async {
+      directory.list(recursive: true, followLinks: false).listen((FileSystemEntity entity) async {
         newList.add(entity.path);
         String t = (entity.path).split("/").last;
         String? d = prefs.getString('duration-$t');
         print('DURATION WE ARE TRYING TO GET IS .. duration-$t\n it is .. $d');
         audioDurationList.add(d ?? "");
-        print(
-            'OUR IMAGE FILE IS .. ${thumbDirectory.path}${t.split('.').first}.jpg');
+        print('OUR IMAGE FILE IS .. ${thumbDirectory.path}${t.split('.').first}.jpg');
         final newAudioTrack = AudioTrack(
             title: t,
             source: entity.path,
@@ -86,7 +81,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
   Widget videoWidget(String videoPath, File image, [bool service = false]) {
     final videoFile = File(videoPath);
     String size = (videoFile.statSync().size * 0.000001).truncate().toString();
-    String title = videoPath.split("/").last;
+    String title = '${videoPath.split("/").last.split('.').first}';
 
     return Container(
       margin: EdgeInsets.only(bottom: 20),
@@ -110,8 +105,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
                     alignment: Alignment.center,
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (context) {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
                           return VideoPlayerWidget(videoPath: videoPath);
                         }));
                       },
@@ -154,10 +148,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
                       padding: EdgeInsets.only(left: 6),
                       child: Text(
                         ('${size}MB'),
-                        style: TextStyle(
-                            color: Color.fromRGBO(211, 212, 237, 1),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600),
+                        style: TextStyle(color: Color.fromRGBO(211, 212, 237, 1), fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                     ),
                     // Row(
@@ -201,12 +192,9 @@ class _DownloadScreenState extends State<DownloadScreen> {
                           builder: (BuildContext context) {
                             return ConfirmationWidget(
                                 title: "Delete Video ?",
-                                description:
-                                    "This will delete both the audio and video format. Do you wish to continue?",
+                                description: "This will delete both the audio and video format. Do you wish to continue?",
                                 callback: () {
-                                  deleteFile(
-                                      videoPath: videoPath,
-                                      imagePath: image.path);
+                                  deleteFile(videoPath: videoPath, imagePath: image.path);
                                 },
                                 actionText: "Delete",
                                 exitText: "Cancel");
@@ -261,9 +249,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
         overscroll.disallowIndicator();
         return false;
       },
-      child: (videoList.isEmpty ||
-              audioDurationList.isEmpty ||
-              audioList.isEmpty)
+      child: (videoList.isEmpty || audioDurationList.isEmpty || audioList.isEmpty)
           ? Container()
           : ListView.builder(
               padding: EdgeInsets.only(
@@ -287,19 +273,13 @@ class _DownloadScreenState extends State<DownloadScreen> {
 
                 return InkWell(
                   onTap: () async {
-                    print(
-                        "length is ....${Provider.of<AudioProvider>(context, listen: false).playlist.length}");
-                    await Provider.of<AudioProvider>(context, listen: false)
-                        .selectCurrentIndex(index);
-                    await Provider.of<AudioProvider>(context, listen: false)
-                        .setPlaylist(audioList);
+                    print("length is ....${Provider.of<AudioProvider>(context, listen: false).playlist.length}");
+                    await Provider.of<AudioProvider>(context, listen: false).selectCurrentIndex(index);
+                    await Provider.of<AudioProvider>(context, listen: false).setPlaylist(audioList);
                     track.title = title;
-                    await Provider.of<AudioProvider>(context, listen: false)
-                        .setCurrentTrack(track);
+                    await Provider.of<AudioProvider>(context, listen: false).setCurrentTrack(track);
 
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            AudioPlayerWidget()));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => AudioPlayerWidget()));
                   },
                   child: Container(
                     margin: EdgeInsets.only(bottom: 20),
@@ -321,9 +301,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             // borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                                image: FileImage(track.image!),
-                                fit: BoxFit.fitHeight),
+                            image: DecorationImage(image: FileImage(track.image!), fit: BoxFit.fitHeight),
                           ),
                         ),
                         Expanded(
@@ -338,17 +316,12 @@ class _DownloadScreenState extends State<DownloadScreen> {
                                 Text(
                                   title,
                                   //    overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600),
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                                 ),
                                 Text(
                                   // 'September 14, 2022',
                                   date,
-                                  style: TextStyle(
-                                      color: Color(0xFFACB8C2),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600),
+                                  style: TextStyle(color: Color(0xFFACB8C2), fontSize: 11, fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
@@ -375,12 +348,9 @@ class _DownloadScreenState extends State<DownloadScreen> {
                                     builder: (BuildContext context) {
                                       return ConfirmationWidget(
                                           title: "Delete Audio ?",
-                                          description:
-                                              "This will delete both the audio and video format. Do you wish to continue?",
+                                          description: "This will delete both the audio and video format. Do you wish to continue?",
                                           callback: () {
-                                            deleteFile(
-                                                videoPath: track.source,
-                                                imagePath: track.image!.path);
+                                            deleteFile(videoPath: track.source, imagePath: track.image!.path);
                                           },
                                           actionText: "Delete",
                                           exitText: "Cancel");
@@ -437,8 +407,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
                       indicatorSize: TabBarIndicatorSize.label,
                       indicatorWeight: 4,
                       labelColor: Theme.of(context).iconTheme.color,
-                      unselectedLabelColor:
-                          Theme.of(context).iconTheme.color!.withOpacity(0.25),
+                      unselectedLabelColor: Theme.of(context).iconTheme.color!.withOpacity(0.25),
                       tabs: [
                         Tab(
                           child: Text(

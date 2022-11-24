@@ -18,9 +18,7 @@ class ResourcesApi {
   String? _taskId;
   File? _thumbFile;
   Future<String> getVideoLink({required String videoId}) async {
-    Map<String, dynamic> body = {
-      "link": "https://www.youtube.com/watch?v=$videoId"
-    };
+    Map<String, dynamic> body = {"link": "https://www.youtube.com/watch?v=$videoId"};
 
     Uri uri = Uri.parse("${AppConfig.host}/resources/download-from-youtube");
     Map<String, String> headers = {
@@ -74,24 +72,19 @@ class ResourcesApi {
       await prefs.setString('duration-$trimmedName', vidDuration);
       print('DURATION WAS SAVED AS ... duration-$trimmedName');
       print(savePath);
-      _thumbFile =
-          await fileFromImageUrl(videoThumbnail, thumbDir, trimmedName);
+      _thumbFile = await fileFromImageUrl(videoThumbnail, thumbDir, trimmedName);
       try {
         final taskId = await FlutterDownloader.enqueue(
           url: downloadUrl,
           savedDir: savePath,
-          fileName: trimmedName,
-          showNotification:
-              false, // show download progress in status bar (for Android)
+          fileName: '${trimmedName}.mp4',
+          showNotification: false, // show download progress in status bar (for Android)
           openFileFromNotification: false,
-          saveInPublicStorage:
-              false, // click on notification to open downloaded file (for Android)
+          saveInPublicStorage: false, // click on notification to open downloaded file (for Android)
         );
         _taskId = taskId;
         Provider.of<AppProvider>(context, listen: false).setDownloading(false);
-        Provider.of<AppProvider>(context, listen: false)
-            .setProgressString("Completed");
-        print("Image is saved to download folder.");
+        Provider.of<AppProvider>(context, listen: false).setProgressString("Completed");
 
         //_extractAudio(savePath, trimmedName);
       } catch (e) {
@@ -110,16 +103,13 @@ class ResourcesApi {
     );
   }
 
-  Future<File> fileFromImageUrl(
-      String imageUrl, Directory thumbDir, String fileName) async {
+  Future<File> fileFromImageUrl(String imageUrl, Directory thumbDir, String fileName) async {
     final response = await http.get(Uri.parse(imageUrl));
     bool exists = await thumbDir.exists();
     if (!exists) {
       thumbDir = await thumbDir.create();
     }
-    final file =
-        await File(join(thumbDir.path, '${fileName.split('.').first}.jpg'))
-            .create();
+    final file = await File(join(thumbDir.path, '${fileName.split('.').first}.jpg')).create();
     file.writeAsBytesSync(response.bodyBytes);
     return file;
   }

@@ -8,16 +8,14 @@ import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final String videoPath;
-  const VideoPlayerWidget({Key? key, required this.videoPath})
-      : super(key: key);
+  const VideoPlayerWidget({Key? key, required this.videoPath}) : super(key: key);
   @override
   State<StatefulWidget> createState() {
     return _VideoPlayerState();
   }
 }
 
-class _VideoPlayerState extends State<VideoPlayerWidget>
-    with SingleTickerProviderStateMixin {
+class _VideoPlayerState extends State<VideoPlayerWidget> with SingleTickerProviderStateMixin {
   bool _visible = true;
   // ignore: prefer_final_fields
   bool _fullScreen = false;
@@ -26,8 +24,8 @@ class _VideoPlayerState extends State<VideoPlayerWidget>
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.file(File(widget.videoPath),
-        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true))
+    print('current video path is .. ${widget.videoPath}');
+    _controller = VideoPlayerController.file(File(Uri.encodeFull(widget.videoPath)), videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true))
       ..initialize().then((_) {
         setState(() {});
         _controller.play();
@@ -118,9 +116,7 @@ class _VideoPlayerState extends State<VideoPlayerWidget>
                           child: GestureDetector(
                             onTap: () {
                               setState(() {
-                                _controller.value.isPlaying
-                                    ? _controller.pause()
-                                    : _controller.play();
+                                _controller.value.isPlaying ? _controller.pause() : _controller.play();
                               });
                             },
                             child: Container(
@@ -131,38 +127,32 @@ class _VideoPlayerState extends State<VideoPlayerWidget>
                               child: Icon(
                                 Icons.play_arrow_rounded,
                                 size: 54,
-                                color: _controller.value.isPlaying
-                                    ? Colors.transparent
-                                    : babyBlue,
+                                color: _controller.value.isPlaying ? Colors.transparent : babyBlue,
                               ),
                             ),
                           ),
                         ),
-                        Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: VideoProgressIndicator(
-                                  _controller,
-                                  allowScrubbing: true,
-                                  padding: EdgeInsets.only(
-                                      bottom: 5, left: 3, right: 3, top: 3),
-                                  colors: VideoProgressColors(
-                                      playedColor: babyBlue),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _fullScreen = !_fullScreen;
-                                  });
-                                },
-                                child: Icon(
-                                  Icons.fullscreen,
-                                  color: babyBlue,
-                                ),
-                              ),
-                            ])
+                        Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                          Expanded(
+                            child: VideoProgressIndicator(
+                              _controller,
+                              allowScrubbing: true,
+                              padding: EdgeInsets.only(bottom: 5, left: 3, right: 3, top: 3),
+                              colors: VideoProgressColors(playedColor: babyBlue),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _fullScreen = !_fullScreen;
+                              });
+                            },
+                            child: Icon(
+                              Icons.fullscreen,
+                              color: babyBlue,
+                            ),
+                          ),
+                        ])
                       ],
                     ),
                   )
