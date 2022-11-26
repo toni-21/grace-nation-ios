@@ -69,8 +69,6 @@ class _MessagesScreenState extends State<MessagesScreen>
           Provider.of<AppProvider>(context, listen: false)
               .setDownloading(false);
         });
-
-        print("Download has finished and is saved at ");
       }
 
       if (status == DownloadTaskStatus.complete) {
@@ -82,7 +80,7 @@ class _MessagesScreenState extends State<MessagesScreen>
               .setDownloading(false);
         });
 
-        print("Download has finished and is saved at ");
+        print("Download completed successfully ");
       }
 
       if (_tasks != null && _tasks!.isNotEmpty) {
